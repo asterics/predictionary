@@ -1,4 +1,4 @@
-import Dictionary from "./dictionary";
+import Dictionary from "./dictionary.mjs";
 
 let predictionary = {};
 
@@ -43,7 +43,7 @@ predictionary.addDictionary = function (dictionaryKey, words) {
 };
 
 predictionary.addWord = function (dictionaryKey, element) {
-    if (!_dicts[dictionaryKey] || !word) {
+    if (!_dicts[dictionaryKey] || !element) {
         throw 'dictionary not existing or word to add not specified.';
     }
     let dict = _dicts[dictionaryKey];
@@ -54,20 +54,30 @@ predictionary.addWord = function (dictionaryKey, element) {
     }
 };
 
-predictionary.predict = function (input, numberOfPredictions, predictionMinDepth, predictionMaxDepth, compareFn) {
+predictionary.predict = function (input, options) {
     let predictions = [];
+    options = options || {};
     Object.keys(_dicts).forEach(key => {
         let dict = _dicts[key];
-        predictions = predictions.concat(dict.predict(input, numberOfPredictions, predictionMinDepth, predictionMaxDepth, compareFn));
+        predictions = predictions.concat(dict.predict(input, options));
     });
-    predictions.sort((a, b) => (a.score > b.score) ? 1 : -1);
-    return predictions.slice(0, numberOfPredictions).map(prediction => prediction.word);
+    predictions.sort((a, b) => {
+        if (a.score === b.score) {
+            return 0;
+        }
+        return (a.score < b.score) ? 1 : -1
+    });
+    let returnArray = predictions;
+    if (options.maxPredicitons) {
+        returnArray = predictions.slice(0, options.maxPredicitons);
+    }
+    return returnArray.map(prediction => prediction.word);
 };
 
-predictionary.refineDictionaries = function (chosenWord, previousWord) {
+predictionary.refineDictionaries = function (chosenWord, previousWord, addToDictionaryKey) {
     Object.keys(_dicts).forEach(key => {
         let dict = _dicts[key];
-        dict.refine(chosenWord, previousWord);
+        dict.refine(chosenWord, previousWord, addToDictionaryKey === key);
     });
 };
 

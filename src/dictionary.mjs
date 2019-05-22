@@ -1,4 +1,4 @@
-import itemFactory from "./itemFactory";
+import itemFactory from "./itemFactory.mjs";
 
 function Dictionary() {
     let thiz = this;
@@ -36,18 +36,19 @@ function Dictionary() {
         return !!_dict[word];
     };
 
-    thiz.predict = function (input, numberOfPredictions, predictionMinDepth, predictionMaxDepth, compareFn) {
+    thiz.predict = function (input, options) {
+        input = input || '';
+        options = options || {}; //maxPredicitons, predictionMinDepth, predictionMaxDepth, compareFn
         if (_lastPredictionInput && input.indexOf(_lastPredictionInput) === 0) {
             //TODO use _predictionCache
         }
         _predictionCache = [];
         Object.keys(_dict).forEach(key => {
-            if (key.indexOf(input) === 0) {
+            if (key.toLowerCase().indexOf(input.toLowerCase()) === 0) {
                 _predictionCache.push(_dict[key]);
             }
         });
-        _predictionCache.sort((a, b) => (a.frequency > b.frequency) ? 1 : -1);
-        return _predictionCache.slice(0, numberOfPredictions).map(element => {
+        return _predictionCache.map(element => {
             return {
                 word: element.word,
                 score: element.frequency
@@ -55,9 +56,15 @@ function Dictionary() {
         });
     };
 
-    thiz.refine = function (chosenWord, previousWord) {
-        if (!thiz.contains(chosenWord)) {
+    thiz.refine = function (chosenWord, previousWord, addIfNotExisting) {
+        if (!chosenWord || (!thiz.contains(chosenWord) && !addIfNotExisting)) {
             return;
+        }
+        if (addIfNotExisting && chosenWord && !thiz.contains(chosenWord)) {
+            thiz.addWord(chosenWord);
+        }
+        if (addIfNotExisting && previousWord && !thiz.contains(previousWord)) {
+            thiz.addWord(previousWord);
         }
         let chosenWordItem = _dict[chosenWord];
         chosenWordItem.frequency++;
