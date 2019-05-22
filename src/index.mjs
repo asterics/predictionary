@@ -94,7 +94,8 @@ function Predictionary() {
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
             if (!dict.disabled) {
-                predictions = predictions.concat(dict.predict(input, options));
+                let predictFn = isLastWordCompleted(input) ? dict.predictNextWord : dict.predictCompleteWord;
+                predictions = predictions.concat(predictFn(getLastWord(input), options));
             }
         });
         predictions.sort((a, b) => {
@@ -123,6 +124,22 @@ function Predictionary() {
             }
         });
     };
+}
+
+function getLastWord(text) {
+    text = text.trim();
+    let lastIndex = text.lastIndexOf(' ');
+    let lastWord = '';
+    if (lastIndex === -1) {
+        lastWord = text;
+    } else {
+        lastWord = text.substring(lastIndex);
+    }
+    return lastWord.trim();
+}
+
+function isLastWordCompleted(text) {
+    return text[text.length - 1] === ' ';
 }
 
 export default Predictionary;

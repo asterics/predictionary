@@ -30,11 +30,15 @@ function Dictionary() {
         });
     };
 
-    thiz.contains = function (word) {
-        return !!_dict[word];
+    thiz.contains = function (word, matchCase) {
+        if (matchCase) {
+            return !!_dict[word];
+        } else {
+            return !!getBestFittingItem(word);
+        }
     };
 
-    thiz.predict = function (input, options) {
+    thiz.predictCompleteWord = function (input, options) {
         input = input || '';
         options = options || {}; //maxPredicitons, predictionMinDepth, predictionMaxDepth, compareFn
         let possiblePredictions = [];
@@ -45,7 +49,7 @@ function Dictionary() {
         });
 
         if (possiblePredictions.length === 0 && input !== '') {
-            return thiz.predict(input.substring(0, input.length - 1), options);
+            return thiz.predictCompleteWord(input.substring(0, input.length - 1), options);
         }
         return possiblePredictions.map(element => {
             return {
@@ -54,6 +58,20 @@ function Dictionary() {
                 rank: element.r
             };
         });
+    };
+
+    thiz.predictNextWord = function (previousWord, options) {
+        let items = getDictItemsAnyCase(previousWord);
+        let predictions = [];
+        items.forEach(item => {
+            Object.keys(item.t).forEach(key => {
+                predictions.push({
+                    word: key,
+                    frequency: item.t[key]
+                });
+            });
+        });
+        return predictions;
     };
 
     thiz.refine = function (chosenWord, previousWord, addIfNotExisting) {
@@ -66,17 +84,38 @@ function Dictionary() {
         if (addIfNotExisting && previousWord && !thiz.contains(previousWord)) {
             thiz.addWord(previousWord);
         }
-        let chosenWordItem = _dict[chosenWord];
+        let previousWordItem = getBestFittingItem(previousWord);
+        let chosenWordItem = getBestFittingItem(chosenWord);
         chosenWordItem.f++;
-        let previousWordItem = _dict[previousWord];
         if (previousWordItem) {
-            if (previousWordItem.t[chosenWord]) {
-                previousWordItem.t[chosenWord]++;
+            if (previousWordItem.t[chosenWordItem.w]) {
+                previousWordItem.t[chosenWordItem.w]++;
             } else {
-                previousWordItem.t[chosenWord] = 1;
+                previousWordItem.t[chosenWordItem.w] = 1;
             }
         }
     };
+
+    function getDictItemsAnyCase(word) {
+        if (!word) {
+            return [];
+        }
+        let items = [];
+        if (_dict[word]) items.push(_dict[word]);
+        if (_dict[word.toLowerCase()] && !items.includes(_dict[word.toLowerCase()])) items.push(_dict[word.toLowerCase()]);
+        if (_dict[word.toUpperCase()] && !items.includes(_dict[word.toUpperCase()])) items.push(_dict[word.toUpperCase()]);
+        if (_dict[capitalize(word)] && !items.includes(_dict[capitalize(word)])) items.push(_dict[capitalize(word)]);
+        return items;
+    }
+
+    function getBestFittingItem(word) {
+        let items = getDictItemsAnyCase(word);
+        return items.length > 0 ? items[0] : null;
+    }
+
+    function capitalize(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 }
 
 export default Dictionary;

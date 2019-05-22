@@ -175,3 +175,19 @@ test('two dictionaries, useDictionary, useAllDictionaries, useDictionaries', () 
     predictionary.useAllDictionaries();
     expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ask', 'Apple2', 'Apple', 'Apricot', 'Avocado']));
 });
+
+test('refineDictionaries, with previous word', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.refineDictionaries('Banana', 'Apple');
+    expect(predictionary.predict('app')).toEqual(expect.arrayContaining(['Apple']));
+    expect(predictionary.predict('apple ')).toEqual(expect.arrayContaining(['Banana']));
+    expect(predictionary.predict('Apple ')).toEqual(expect.arrayContaining(['Banana']));
+});
+
+test('refineDictionaries, with previous word, different case', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.refineDictionaries('banana', 'apple');
+    expect(predictionary.predict('app')).toEqual(expect.arrayContaining(['Apple']));
+    expect(predictionary.predict('apple ')).toEqual(expect.arrayContaining(['Banana']));
+    expect(predictionary.predict('Apple ')).toEqual(expect.arrayContaining(['Banana']));
+});
