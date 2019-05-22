@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Predictionary Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+    <script src="../dist/predictionary.js"></script>
+</head>
+<body>
+<div id="app">
+    <h1>Predictionary Testpage</h1>
+    <textarea :value="input" @input="update"></textarea>
+
+    <div>
+        <span>Suggestions: </span>
+        <ul>
+            <li v-for="suggestion in suggestions"><button @click="add(suggestion)">{{suggestion}}</button></li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    let predictionary = Predictionary.instance();
+    let dictKey = 'test';
+    predictionary.addDictionary(dictKey);
+    $.get('words_de.txt').then(result => {
+        let lines = result.split('\n');
+        lines.forEach(line => {
+            let elems = line.split(' ');
+            let rank = parseInt(elems[0]);
+            if (!isNaN(rank) && elems[2]) {
+                predictionary.addWord(dictKey, {
+                    word: elems[2],
+                    rank: rank
+                });
+            }
+        });
+    });
+
+    let vueApp = new Vue({
+        el: '#app',
+        data: {
+            input: '',
+            suggestions: []
+        },
+        methods: {
+            update: _.debounce(function (e) {
+                let lastWord = null;
+                let value = e.target.value.trim();
+                let lastIndex = value.lastIndexOf(' ');
+                if (lastIndex === -1) {
+                    lastWord = value;
+                } else {
+                    lastWord = value.substring(lastIndex);
+                }
+                console.log(lastWord);
+                this.suggestions = predictionary.predict(lastWord.trim(), {maxPredicitons: 10});
+                this.input = e.target.value;
+            }, 300),
+            add: function (suggestion) {
+                this.input += suggestion;
+            }
+        }
+    })
+</script>
+</body>
+</html>
