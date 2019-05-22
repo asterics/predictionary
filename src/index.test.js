@@ -93,11 +93,11 @@ test('addWord, single string', () => {
     expect(result[0]).toEqual('Test');
 });
 
-test('addWord, with frequency', () => {
+test('addWord, with rank', () => {
     predictionary.addDictionary(TESTKEY, fruits);
     predictionary.addWord(TESTKEY, {
         word: 'Test',
-        frequency: 2
+        rank: 1
     });
     let result = predictionary.predict('');
     expect(result).toEqual(expect.arrayContaining(fruits.concat(['Test'])));

@@ -82,9 +82,9 @@ function Predictionary() {
         }
         let dict = _dicts[dictionaryKey];
         if (typeof element === 'string') {
-            dict.addWord(element);
+            dict.addWord(element.trim());
         } else if (element.word && typeof element.word === 'string') {
-            dict.addWord(element.word, element.frequency);
+            dict.addWord(element.word.trim(), element.rank);
         }
     };
 
@@ -98,10 +98,15 @@ function Predictionary() {
             }
         });
         predictions.sort((a, b) => {
-            if (a.score === b.score) {
+            if (a.frequency === b.frequency && a.rank === b.rank) {
                 return 0;
             }
-            return (a.score < b.score) ? 1 : -1
+            if (a.frequency === b.frequency && (a.rank || b.rank)) {
+                if (!a.rank) return 1;
+                if (!b.rank) return -1;
+                return (a.rank < b.rank) ? -1 : 1
+            }
+            return (a.frequency < b.frequency) ? 1 : -1
         });
         let returnArray = predictions;
         if (options.maxPredicitons) {
@@ -121,3 +126,7 @@ function Predictionary() {
 }
 
 export default Predictionary;
+
+export function instance() {
+    return new Predictionary();
+}

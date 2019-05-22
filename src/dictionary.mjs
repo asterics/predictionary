@@ -3,8 +3,6 @@ import itemFactory from "./itemFactory.mjs";
 function Dictionary() {
     let thiz = this;
     let _dict = {};
-    let _predictionCache = [];
-    let _lastPredictionInput = null;
 
     thiz.load = function (dictionaryJSON) {
         _dict = JSON.parse(dictionaryJSON);
@@ -14,12 +12,12 @@ function Dictionary() {
         return JSON.stringify(_dict);
     };
 
-    thiz.addWord = function (word, frequency) {
+    thiz.addWord = function (word, rank) {
         if (!word) {
             throw 'word to add must not be empty.';
         }
         if (!_dict[word]) {
-            _dict[word] = itemFactory.createItem(word, frequency);
+            _dict[word] = itemFactory.createItem(word, rank);
         }
     };
 
@@ -39,22 +37,21 @@ function Dictionary() {
     thiz.predict = function (input, options) {
         input = input || '';
         options = options || {}; //maxPredicitons, predictionMinDepth, predictionMaxDepth, compareFn
-        if (!_lastPredictionInput || input.indexOf(_lastPredictionInput) !== 0) {
-            _predictionCache = [];
-            Object.keys(_dict).forEach(key => {
-                if (key.toLowerCase().indexOf(input.toLowerCase()) === 0) {
-                    _predictionCache.push(_dict[key]);
-                }
-            });
-        }
-        if (_predictionCache.length === 0 && input !== '') {
+        let possiblePredictions = [];
+        Object.keys(_dict).forEach(key => {
+            if (key.toLowerCase().indexOf(input.toLowerCase()) === 0) {
+                possiblePredictions.push(_dict[key]);
+            }
+        });
+
+        if (possiblePredictions.length === 0 && input !== '') {
             return thiz.predict(input.substring(0, input.length - 1), options);
         }
-        _lastPredictionInput = input;
-        return _predictionCache.map(element => {
+        return possiblePredictions.map(element => {
             return {
                 word: element.w,
-                score: element.f
+                frequency: element.f,
+                rank: element.r
             };
         });
     };
