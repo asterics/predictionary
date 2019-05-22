@@ -39,19 +39,22 @@ function Dictionary() {
     thiz.predict = function (input, options) {
         input = input || '';
         options = options || {}; //maxPredicitons, predictionMinDepth, predictionMaxDepth, compareFn
-        if (_lastPredictionInput && input.indexOf(_lastPredictionInput) === 0) {
-            //TODO use _predictionCache
+        if (!_lastPredictionInput || input.indexOf(_lastPredictionInput) !== 0) {
+            _predictionCache = [];
+            Object.keys(_dict).forEach(key => {
+                if (key.toLowerCase().indexOf(input.toLowerCase()) === 0) {
+                    _predictionCache.push(_dict[key]);
+                }
+            });
         }
-        _predictionCache = [];
-        Object.keys(_dict).forEach(key => {
-            if (key.toLowerCase().indexOf(input.toLowerCase()) === 0) {
-                _predictionCache.push(_dict[key]);
-            }
-        });
+        if (_predictionCache.length === 0 && input !== '') {
+            return thiz.predict(input.substring(0, input.length - 1), options);
+        }
+        _lastPredictionInput = input;
         return _predictionCache.map(element => {
             return {
-                word: element.word,
-                score: element.frequency
+                word: element.w,
+                score: element.f
             };
         });
     };
@@ -67,13 +70,13 @@ function Dictionary() {
             thiz.addWord(previousWord);
         }
         let chosenWordItem = _dict[chosenWord];
-        chosenWordItem.frequency++;
+        chosenWordItem.f++;
         let previousWordItem = _dict[previousWord];
         if (previousWordItem) {
-            if (previousWordItem.transitions[chosenWord]) {
-                previousWordItem.transitions[chosenWord]++;
+            if (previousWordItem.t[chosenWord]) {
+                previousWordItem.t[chosenWord]++;
             } else {
-                previousWordItem.transitions[chosenWord] = 1;
+                previousWordItem.t[chosenWord] = 1;
             }
         }
     };
