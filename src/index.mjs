@@ -3,7 +3,6 @@ import Dictionary from "./dictionary.mjs";
 function Predictionary() {
     let thiz = this;
     let _dicts = {};
-    let _useDictionaries = null;
 
     thiz.loadDictionary = function (dictionaryKey, dictionaryJSON) {
         if (!dictionaryKey || !dictionaryJSON) {
@@ -45,18 +44,24 @@ function Predictionary() {
         if (!dictionaryKey) {
             throw 'dictionaryKey must be specified.';
         }
-        _useDictionaries = [dictionaryKey];
+        Object.keys(_dicts).forEach(key => {
+            _dicts[key].disabled = dictionaryKey !== key;
+        });
     };
 
     thiz.useDictionaries = function (dictionaryKeys) {
         if (!(dictionaryKeys instanceof Array)) {
             throw 'dictionaryKeys must be specified and of type Array.';
         }
-        _useDictionaries = JSON.parse(JSON.stringify(dictionaryKeys));
+        Object.keys(_dicts).forEach(key => {
+            _dicts[key].disabled = !dictionaryKeys.includes(key);
+        });
     };
 
     thiz.useAllDictionaries = function () {
-        _useDictionaries = null;
+        Object.keys(_dicts).forEach(key => {
+            _dicts[key].disabled = false;
+        });
     };
 
     thiz.addDictionary = function (dictionaryKey, words) {
@@ -88,7 +93,9 @@ function Predictionary() {
         options = options || {};
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
-            predictions = predictions.concat(dict.predict(input, options));
+            if (!dict.disabled) {
+                predictions = predictions.concat(dict.predict(input, options));
+            }
         });
         predictions.sort((a, b) => {
             if (a.score === b.score) {
@@ -106,16 +113,11 @@ function Predictionary() {
     thiz.refineDictionaries = function (chosenWord, previousWord, addToDictionaryKey) {
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
-            dict.refine(chosenWord, previousWord, addToDictionaryKey === key);
+            if (!dict.disabled) {
+                dict.refine(chosenWord, previousWord, addToDictionaryKey === key);
+            }
         });
     };
-
-    function getDictionariesToUse() {
-        return Object.keys(_dicts).map(key => {
-                return (_useDictionaries === null || _useDictionaries.includes(key)) ? _dicts[key] : null;
-            }
-        ).filter(dict => !!dict);
-    }
 }
 
 export default Predictionary;

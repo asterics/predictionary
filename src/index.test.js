@@ -159,3 +159,19 @@ test('two dictionaries, dictionariesToJSON, loadDictionaries', () => {
     newPredictionary.loadDictionaries(json);
     expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ask', 'Apple2', 'Apple', 'Apricot', 'Avocado']));
 });
+
+test('two dictionaries, useDictionary, useAllDictionaries, useDictionaries', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addDictionary(TESTKEY2, verbs);
+    predictionary.addWord(TESTKEY, "Apple2");
+    predictionary.useDictionary(TESTKEY);
+    expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['Apple2', 'Apple', 'Apricot', 'Avocado']));
+    predictionary.useDictionary(TESTKEY2);
+    expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ask']));
+    predictionary.useDictionaries([TESTKEY, TESTKEY2]);
+    expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ask', 'Apple2', 'Apple', 'Apricot', 'Avocado']));
+    predictionary.useDictionaries([]);
+    expect(predictionary.predict('A')).toEqual([]);
+    predictionary.useAllDictionaries();
+    expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ask', 'Apple2', 'Apple', 'Apricot', 'Avocado']));
+});
