@@ -6,9 +6,9 @@ itemFactory.createItem = function (word, frequency) {
     }
     let frequencyInt = parseInt(frequency);
     return {
-        word: word,
-        frequency: isNaN(frequencyInt) ? 0 : frequencyInt,
-        transitions: {}
+        w: word,
+        f: isNaN(frequencyInt) ? 0 : frequencyInt,
+        t: {}
     }
 };
 
