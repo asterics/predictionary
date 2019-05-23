@@ -299,3 +299,28 @@ test('applyPrediction, test automatic learning subsequent words, new word add to
     expect(predictionary.applyPrediction('i want no ', 'Apricot', {addToDictionary: true})).toEqual('i want no Apricot ');
     expect(predictionary.predict('no ')).toEqual(['Apricot']);
 });
+
+test('importWords, default', () => {
+    let importString = 'apple;banana;lemon';
+    predictionary.importWords(importString);
+    expect(predictionary.predict('')).toEqual(expect.arrayContaining(['apple', 'banana', 'lemon']));
+});
+
+test('importWords, custom separator', () => {
+    let importString = 'apple\nbanana\nlemon';
+    predictionary.importWords(importString, {
+        elementSeparator: '\n'
+    });
+    expect(predictionary.predict('')).toEqual(expect.arrayContaining(['apple', 'banana', 'lemon']));
+});
+
+test('importWords, with rank, custom separators', () => {
+    let importString = 'apple,3:banana,2:lemon,1';
+    predictionary.importWords(importString, {
+        elementSeparator: ':',
+        rankSeparator: ',',
+        wordPosition: 0,
+        rankPosition: 1
+    });
+    expect(predictionary.predict('')).toEqual(expect.arrayContaining(['lemon', 'banana', 'apple']));
+});

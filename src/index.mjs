@@ -111,6 +111,30 @@ function Predictionary() {
         })
     };
 
+    thiz.importWords = function (importString, options) {
+        options = options || {};
+        let elementSeparator = options.elementSeparator || ';';
+        let rankSeparator = options.rankSeparator || ' ';
+        let wordPosition = options.wordPosition || 0;
+        let rankPosition = options.rankPosition;
+        let addToDictionary = options.addToDictionary || DEFAULT_DICTIONARY_KEY;
+
+        let lines = importString.split(elementSeparator);
+        lines.forEach(line => {
+            let elems = line.split(rankSeparator);
+            let rank = parseInt(elems[rankPosition]);
+            if (elems[wordPosition]) {
+                let elementToAdd = {
+                    word: elems[wordPosition].trim()
+                };
+                if (!isNaN(rank)) {
+                    elementToAdd.rank = rank;
+                }
+                thiz.addWord(elementToAdd, addToDictionary);
+            }
+        });
+    };
+
     thiz.predict = function (input, options) {
         return predictInternal(input, options);
     };
