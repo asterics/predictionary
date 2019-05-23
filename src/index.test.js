@@ -11,7 +11,7 @@ beforeEach(() => {
 });
 
 test.skip('addDictionary, predict, performance', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     let startTime = new Date().getTime();
     for (var i = 0; i < 60000; i++) {
         expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
@@ -20,13 +20,13 @@ test.skip('addDictionary, predict, performance', () => {
 });
 
 test('addDictionary, predict', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits, TESTKEY);
     expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
     expect(predictionary.predict('a')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
 });
 
 test('addDictionary, predict, sequence', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits, TESTKEY);
     expect(predictionary.predict('a')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
     expect(predictionary.predict('ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
     expect(predictionary.predict('app')).toEqual(expect.arrayContaining(['Apple']));
@@ -44,7 +44,7 @@ test('addDictionary, predict, sequence', () => {
 });
 
 test('predict, refine', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
     predictionary.refineDictionaries('Apricot');
     expect(predictionary.predict('a')).toEqual(expect.arrayContaining(['Apricot', 'Apple', 'Avocado']));
@@ -56,7 +56,7 @@ test('predict, refine', () => {
 });
 
 test('predict empty, refine', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     expect(predictionary.predict('')).toEqual(expect.arrayContaining(fruits));
     predictionary.refineDictionaries('Cherry');
     let result = predictionary.predict('');
@@ -65,14 +65,14 @@ test('predict empty, refine', () => {
 });
 
 test('predict, option numberOfPredictions', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     let result = predictionary.predict('', {maxPredicitons: 5});
     expect(result.length).toEqual(5);
     expect(fruits).toEqual(expect.arrayContaining(result));
 });
 
 test('predict, option numberOfPredictions, refine', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('Cherry');
     predictionary.refineDictionaries('Coconut');
     predictionary.refineDictionaries('Coconut');
@@ -84,8 +84,8 @@ test('predict, option numberOfPredictions, refine', () => {
 });
 
 test('addWord, single string', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
-    predictionary.addWord(TESTKEY, 'Test');
+    predictionary.addWords(fruits);
+    predictionary.addWord('Test');
     expect(predictionary.predict('')).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
     predictionary.refineDictionaries('Test');
     let result = predictionary.predict('');
@@ -94,8 +94,8 @@ test('addWord, single string', () => {
 });
 
 test('addWord, with rank', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
-    predictionary.addWord(TESTKEY, {
+    predictionary.addWords(fruits);
+    predictionary.addWord({
         word: 'Test',
         rank: 1
     });
@@ -105,16 +105,16 @@ test('addWord, with rank', () => {
 });
 
 test('refine, with adding', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
-    predictionary.refineDictionaries('Test', null, TESTKEY);
+    predictionary.addWords(fruits);
+    predictionary.refineDictionaries('Test', null, true);
     let result = predictionary.predict('', {maxPredicitons: 1});
     expect(result.length).toEqual(1);
     expect(result[0]).toEqual('Test');
 });
 
 test('dictionariesToJSON, loadDictionaries', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
-    predictionary.addWord(TESTKEY, "Apple2");
+    predictionary.addWords(fruits);
+    predictionary.addWord("Apple2");
     let json = predictionary.dictionariesToJSON();
     let newPredictionary = new Predictionary();
     newPredictionary.loadDictionaries(json);
@@ -122,12 +122,12 @@ test('dictionariesToJSON, loadDictionaries', () => {
 });
 
 test('dictionaryToJSON, loadDictionary', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
-    predictionary.addWord(TESTKEY, "Apple2");
-    let json = predictionary.dictionaryToJSON(TESTKEY);
+    predictionary.addWords(fruits);
+    predictionary.addWord("Apple2");
+    let json = predictionary.dictionaryToJSON();
     let newPredictionary = new Predictionary();
-    newPredictionary.loadDictionary(TESTKEY, json);
-    expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['Apple2', 'Apple', 'Apricot', 'Avocado']));
+    newPredictionary.loadDictionary(json);
+    expect(newPredictionary.predict('A')).toEqual(expect.arrayContaining(['Apple2', 'Apple', 'Apricot', 'Avocado']));
 });
 
 test('two dictionaries, predict', () => {
@@ -153,7 +153,7 @@ test('two dictionaries, predict, refine', () => {
 test('two dictionaries, dictionariesToJSON, loadDictionaries', () => {
     predictionary.addDictionary(TESTKEY, fruits);
     predictionary.addDictionary(TESTKEY2, verbs);
-    predictionary.addWord(TESTKEY, "Apple2");
+    predictionary.addWord("Apple2", TESTKEY);
     let json = predictionary.dictionariesToJSON();
     let newPredictionary = new Predictionary();
     newPredictionary.loadDictionaries(json);
@@ -163,7 +163,7 @@ test('two dictionaries, dictionariesToJSON, loadDictionaries', () => {
 test('two dictionaries, useDictionary, useAllDictionaries, useDictionaries', () => {
     predictionary.addDictionary(TESTKEY, fruits);
     predictionary.addDictionary(TESTKEY2, verbs);
-    predictionary.addWord(TESTKEY, "Apple2");
+    predictionary.addWord("Apple2", TESTKEY);
     predictionary.useDictionary(TESTKEY);
     expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['Apple2', 'Apple', 'Apricot', 'Avocado']));
     predictionary.useDictionary(TESTKEY2);
@@ -177,7 +177,7 @@ test('two dictionaries, useDictionary, useAllDictionaries, useDictionaries', () 
 });
 
 test('refineDictionaries, with previous word, predict automatically', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('Banana', 'Apple');
     expect(predictionary.predict('app')).toEqual(expect.arrayContaining(['Apple']));
     expect(predictionary.predict('apple ')).toEqual(expect.arrayContaining(['Banana']));
@@ -185,7 +185,7 @@ test('refineDictionaries, with previous word, predict automatically', () => {
 });
 
 test('refineDictionaries, with previous word, different case, predict automatically', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('banana', 'apple');
     expect(predictionary.predict('app')).toEqual(expect.arrayContaining(['Apple']));
     expect(predictionary.predict('apple ')).toEqual(expect.arrayContaining(['Banana']));
@@ -193,7 +193,7 @@ test('refineDictionaries, with previous word, different case, predict automatica
 });
 
 test('refineDictionaries, with previous word, different case, predict automatically, change order', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('banana', 'apple');
     predictionary.refineDictionaries('Banana', 'apple');
     predictionary.refineDictionaries('Apricot', 'Apple');
@@ -208,7 +208,7 @@ test('refineDictionaries, with previous word, different case, predict automatica
 });
 
 test('refineDictionaries, with previous word, predictNextWord', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('banana', 'apple');
     predictionary.refineDictionaries('Apricot', 'Apple');
     expect(predictionary.predictNextWord('apple')).toEqual(expect.arrayContaining(['Banana', 'Apricot']));
@@ -218,7 +218,7 @@ test('refineDictionaries, with previous word, predictNextWord', () => {
 });
 
 test('refineDictionaries, with previous word, predictCompleteWord', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('banana', 'apple');
     predictionary.refineDictionaries('Apricot', 'Apple');
     expect(predictionary.predictCompleteWord('a')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
@@ -230,19 +230,19 @@ test('refineDictionaries, with previous word, predictCompleteWord', () => {
 });
 
 test('predictCompleteWord, with spaces', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     expect(predictionary.predictCompleteWord(' a  ')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
     expect(predictionary.predictCompleteWord('  appl  ')).toEqual(['Apple']);
 });
 
 test('predictNextWord, with spaces', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('Apricot', 'Apple');
     expect(predictionary.predictNextWord(' apple  ')).toEqual(['Apricot']);
 });
 
 test('predictNextWord, with previous text', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('Apricot', 'Apple');
     expect(predictionary.predictNextWord('i want an apple  ')).toEqual(['Apricot']);
     expect(predictionary.predictNextWord('i want an apple')).toEqual(['Apricot']);
@@ -250,16 +250,52 @@ test('predictNextWord, with previous text', () => {
 });
 
 test('predictCompleteWord, with previous text', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     expect(predictionary.predictCompleteWord('i want an apple  ')).toEqual(['Apple']);
     expect(predictionary.predictCompleteWord('i want an apple')).toEqual(['Apple']);
     expect(predictionary.predictCompleteWord('i want an ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
 });
 
 test('predict, with previous text, automatically', () => {
-    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addWords(fruits);
     predictionary.refineDictionaries('Apricot', 'Apple');
     expect(predictionary.predict('i want an apple  ')).toEqual(['Apricot']);
     expect(predictionary.predict('i want an apple')).toEqual(['Apple']);
     expect(predictionary.predict('i want an ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
+});
+
+test('applyPrediction, automatically', () => {
+    expect(predictionary.applyPrediction('i want an appl', 'Apple')).toEqual('i want an Apple ');
+    expect(predictionary.applyPrediction('i want an Apple ', 'to')).toEqual('i want an Apple to ');
+    expect(predictionary.applyPrediction('i want an Apple to e', 'eat')).toEqual('i want an Apple to eat ');
+});
+
+test('applyPrediction, manually', () => {
+    expect(predictionary.applyPrediction('i want an appl', 'Apple', {shouldCompleteLastWord: true})).toEqual('i want an Apple ');
+    expect(predictionary.applyPrediction('i want an appl', 'Apple', {shouldCompleteLastWord: false})).toEqual('i want an appl Apple ');
+    expect(predictionary.applyPrediction('i want an appl ', 'Apple', {shouldCompleteLastWord: true})).toEqual('i want an Apple ');
+    expect(predictionary.applyPrediction('i want an appl ', 'Apple', {shouldCompleteLastWord: false})).toEqual('i want an appl Apple ');
+    expect(predictionary.applyPrediction('appl', 'Apple', {shouldCompleteLastWord: true})).toEqual('Apple ');
+    expect(predictionary.applyPrediction('appl', 'Apple', {shouldCompleteLastWord: false})).toEqual('appl Apple ');
+});
+
+test('applyPrediction, test automatic learning', () => {
+    predictionary.addWords(fruits);
+    predictionary.refineDictionaries('Apple');
+    expect(predictionary.predict('ap', {maxPredicitons: 1})).toEqual(['Apple']);
+    expect(predictionary.applyPrediction('i want an ap', 'Apricot')).toEqual('i want an Apricot ');
+    predictionary.refineDictionaries('Apricot'); //second time to chose Apricot
+    expect(predictionary.predict('ap', {maxPredicitons: 2})).toEqual(['Apricot', 'Apple']);
+});
+
+test('applyPrediction, test automatic learning subsequent words', () => {
+    predictionary.addWords(fruits);
+    expect(predictionary.applyPrediction('i want an apple ', 'Apricot')).toEqual('i want an apple Apricot ');
+    expect(predictionary.predict('apple ')).toEqual(['Apricot']);
+});
+
+test('applyPrediction, test automatic learning subsequent words, new word add to dict', () => {
+    predictionary.addWords(fruits);
+    expect(predictionary.applyPrediction('i want no ', 'Apricot', {addToDictionary: true})).toEqual('i want no Apricot ');
+    expect(predictionary.predict('no ')).toEqual(['Apricot']);
 });
