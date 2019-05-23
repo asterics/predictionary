@@ -176,7 +176,7 @@ test('two dictionaries, useDictionary, useAllDictionaries, useDictionaries', () 
     expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ask', 'Apple2', 'Apple', 'Apricot', 'Avocado']));
 });
 
-test('refineDictionaries, with previous word', () => {
+test('refineDictionaries, with previous word, predict automatically', () => {
     predictionary.addDictionary(TESTKEY, fruits);
     predictionary.refineDictionaries('Banana', 'Apple');
     expect(predictionary.predict('app')).toEqual(expect.arrayContaining(['Apple']));
@@ -184,10 +184,82 @@ test('refineDictionaries, with previous word', () => {
     expect(predictionary.predict('Apple ')).toEqual(expect.arrayContaining(['Banana']));
 });
 
-test('refineDictionaries, with previous word, different case', () => {
+test('refineDictionaries, with previous word, different case, predict automatically', () => {
     predictionary.addDictionary(TESTKEY, fruits);
     predictionary.refineDictionaries('banana', 'apple');
     expect(predictionary.predict('app')).toEqual(expect.arrayContaining(['Apple']));
     expect(predictionary.predict('apple ')).toEqual(expect.arrayContaining(['Banana']));
     expect(predictionary.predict('Apple ')).toEqual(expect.arrayContaining(['Banana']));
+});
+
+test('refineDictionaries, with previous word, different case, predict automatically, change order', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.refineDictionaries('banana', 'apple');
+    predictionary.refineDictionaries('Banana', 'apple');
+    predictionary.refineDictionaries('Apricot', 'Apple');
+    expect(predictionary.predict('appl')).toEqual(expect.arrayContaining(['Apple']));
+    expect(predictionary.predict('apple ')).toEqual(expect.arrayContaining(['Banana', 'Apricot']));
+    expect(predictionary.predict('Apple ')).toEqual(expect.arrayContaining(['Banana', 'Apricot']));
+    expect(predictionary.predict('Apple ')[0]).toEqual('Banana');
+    predictionary.refineDictionaries('Apricot', 'Apple');
+    predictionary.refineDictionaries('apricot', 'apple');
+    expect(predictionary.predict('Apple ')[0]).toEqual('Apricot');
+    expect(predictionary.predict('Apple ').length).toEqual(2);
+});
+
+test('refineDictionaries, with previous word, predictNextWord', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.refineDictionaries('banana', 'apple');
+    predictionary.refineDictionaries('Apricot', 'Apple');
+    expect(predictionary.predictNextWord('apple')).toEqual(expect.arrayContaining(['Banana', 'Apricot']));
+    predictionary.refineDictionaries('Banana', 'Apple');
+    expect(predictionary.predictNextWord('Apple')).toEqual(expect.arrayContaining(['Banana', 'Apricot']));
+    expect(predictionary.predictNextWord('Apple')[0]).toEqual('Banana');
+});
+
+test('refineDictionaries, with previous word, predictCompleteWord', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.refineDictionaries('banana', 'apple');
+    predictionary.refineDictionaries('Apricot', 'Apple');
+    expect(predictionary.predictCompleteWord('a')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
+    expect(predictionary.predictCompleteWord('appl').length).toEqual(1);
+    expect(predictionary.predictCompleteWord('appl')[0]).toEqual('Apple');
+    predictionary.refineDictionaries('Apricot', 'Apple');
+    expect(predictionary.predictCompleteWord('a')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
+    expect(predictionary.predictCompleteWord('a')[0]).toEqual('Apricot');
+});
+
+test('predictCompleteWord, with spaces', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    expect(predictionary.predictCompleteWord(' a  ')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
+    expect(predictionary.predictCompleteWord('  appl  ')).toEqual(['Apple']);
+});
+
+test('predictNextWord, with spaces', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.refineDictionaries('Apricot', 'Apple');
+    expect(predictionary.predictNextWord(' apple  ')).toEqual(['Apricot']);
+});
+
+test('predictNextWord, with previous text', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.refineDictionaries('Apricot', 'Apple');
+    expect(predictionary.predictNextWord('i want an apple  ')).toEqual(['Apricot']);
+    expect(predictionary.predictNextWord('i want an apple')).toEqual(['Apricot']);
+    expect(predictionary.predictNextWord('i want an appl')).toEqual([]);
+});
+
+test('predictCompleteWord, with previous text', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    expect(predictionary.predictCompleteWord('i want an apple  ')).toEqual(['Apple']);
+    expect(predictionary.predictCompleteWord('i want an apple')).toEqual(['Apple']);
+    expect(predictionary.predictCompleteWord('i want an ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
+});
+
+test('predict, with previous text, automatically', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.refineDictionaries('Apricot', 'Apple');
+    expect(predictionary.predict('i want an apple  ')).toEqual(['Apricot']);
+    expect(predictionary.predict('i want an apple')).toEqual(['Apple']);
+    expect(predictionary.predict('i want an ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
 });

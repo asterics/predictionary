@@ -1,6 +1,9 @@
 import Dictionary from "./dictionary.mjs";
 
 function Predictionary() {
+    let PREDICT_METHOD_COMPLETE_WORD = 'PREDICT_METHOD_COMPLETE_WORD';
+    let PREDICT_METHOD_NEXT_WORD = 'PREDICT_METHOD_NEXT_WORD';
+
     let thiz = this;
     let _dicts = {};
 
@@ -89,12 +92,34 @@ function Predictionary() {
     };
 
     thiz.predict = function (input, options) {
+        return predictInternal(input, options);
+    };
+
+    thiz.predictCompleteWord = function (input, options) {
+        return predictInternal(input, options, PREDICT_METHOD_COMPLETE_WORD);
+    };
+
+    thiz.predictNextWord = function (input, options) {
+        return predictInternal(input, options, PREDICT_METHOD_NEXT_WORD);
+    };
+
+    thiz.refineDictionaries = function (chosenWord, previousWord, addToDictionaryKey) {
+        Object.keys(_dicts).forEach(key => {
+            let dict = _dicts[key];
+            if (!dict.disabled) {
+                dict.refine(chosenWord, previousWord, addToDictionaryKey === key);
+            }
+        });
+    };
+
+    function predictInternal(input, options, predictType) {
         let predictions = [];
         options = options || {};
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
             if (!dict.disabled) {
-                let predictFn = isLastWordCompleted(input) ? dict.predictNextWord : dict.predictCompleteWord;
+                let predictFn = predictType === PREDICT_METHOD_NEXT_WORD ? dict.predictNextWord : (predictType === PREDICT_METHOD_COMPLETE_WORD ? dict.predictCompleteWord : null);
+                predictFn = predictFn || (isLastWordCompleted(input) ? dict.predictNextWord : dict.predictCompleteWord);
                 predictions = predictions.concat(predictFn(getLastWord(input), options));
             }
         });
@@ -114,16 +139,7 @@ function Predictionary() {
             returnArray = predictions.slice(0, options.maxPredicitons);
         }
         return returnArray.map(prediction => prediction.word);
-    };
-
-    thiz.refineDictionaries = function (chosenWord, previousWord, addToDictionaryKey) {
-        Object.keys(_dicts).forEach(key => {
-            let dict = _dicts[key];
-            if (!dict.disabled) {
-                dict.refine(chosenWord, previousWord, addToDictionaryKey === key);
-            }
-        });
-    };
+    }
 }
 
 function getLastWord(text) {
