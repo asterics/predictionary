@@ -322,5 +322,16 @@ test('importWords, with rank, custom separators', () => {
         wordPosition: 0,
         rankPosition: 1
     });
-    expect(predictionary.predict('')).toEqual(expect.arrayContaining(['lemon', 'banana', 'apple']));
+    expect(predictionary.predict('')).toEqual(['lemon', 'banana', 'apple']);
+});
+
+test('importWords, with rank, custom separators, different order', () => {
+    let importString = 'apple,3:banana,2:lemon,1';
+    predictionary.importWords(importString, {
+        elementSeparator: ':',
+        rankSeparator: ',',
+        wordPosition: 1,
+        rankPosition: 0
+    });
+    expect(predictionary.predict('')).toEqual(expect.arrayContaining(['1', '2', '3']));
 });
