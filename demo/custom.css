@@ -1,0 +1,7 @@
+button {
+    text-transform: none; !important;
+}
+
+.chosen {
+    background-color: lightgreen;
+}

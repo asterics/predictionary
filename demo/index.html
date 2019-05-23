@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <link rel="stylesheet" href="custom.css">
 
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -14,31 +15,28 @@
 <body>
 <div id="app">
     <h1>Predictionary Testpage</h1>
-    <textarea :value="input" @input="update"></textarea>
+    <div class="row">
+        <textarea id="textarea" class="six columns" :value="input" @input="update"
+                  @keyup.enter="choose" @keyup.up="choosePrev" @keyup.down="chooseNext"></textarea>
+    </div>
 
     <div>
         <span>Suggestions: </span>
-        <ul>
-            <li v-for="suggestion in suggestions"><button @click="add(suggestion)">{{suggestion}}</button></li>
-        </ul>
+        <div class="row" v-for="(suggestion, index) in suggestions">
+            <button v-if="index === predictionIndex" @click="add(suggestion)" class="two columns chosen">{{suggestion}}</button>
+            <button v-if="index !== predictionIndex" @click="add(suggestion)" class="two columns">{{suggestion}}</button>
+        </div>
     </div>
 </div>
 
 <script>
     let predictionary = Predictionary.instance();
-    let dictKey = 'test';
-    predictionary.addDictionary(dictKey);
     $.get('words_de.txt').then(result => {
-        let lines = result.split('\n');
-        lines.forEach(line => {
-            let elems = line.split(' ');
-            let rank = parseInt(elems[0]);
-            if (!isNaN(rank) && elems[2]) {
-                predictionary.addWord(dictKey, {
-                    word: elems[2],
-                    rank: rank
-                });
-            }
+        predictionary.importWords(result, {
+            elementSeparator: '\n',
+            rankSeparator: ' ',
+            wordPosition: 2,
+            rankPosition: 0
         });
     });
 
@@ -46,27 +44,45 @@
         el: '#app',
         data: {
             input: '',
-            suggestions: []
+            suggestions: [],
+            predictionIndex: null
         },
         methods: {
             update: _.debounce(function (e) {
-                let lastWord = null;
-                let value = e.target.value.trim();
-                let lastIndex = value.lastIndexOf(' ');
-                if (lastIndex === -1) {
-                    lastWord = value;
-                } else {
-                    lastWord = value.substring(lastIndex);
-                }
-                console.log(lastWord);
-                this.suggestions = predictionary.predict(lastWord.trim(), {maxPredicitons: 10});
+                this.suggestions = predictionary.predict(e.target.value, {maxPredicitons: 10});
                 this.input = e.target.value;
             }, 300),
             add: function (suggestion) {
-                this.input += suggestion;
+                this.input = predictionary.applyPrediction(this.input, suggestion);
+                $('#textarea').focus();
+                this.predictionIndex = null;
+            },
+            choose: function () {
+                if (this.predictionIndex === null) {
+                    return;
+                }
+                this.add(this.suggestions[this.predictionIndex]);
+            },
+            chooseNext: function (event) {
+                let val = $('#textarea').val();
+                $('#textarea').val("").val(val);
+                if (this.predictionIndex === null) {
+                    this.predictionIndex = 0;
+                } else {
+                    this.predictionIndex = (this.predictionIndex < this.suggestions.length - 1) ? this.predictionIndex + 1 : null;
+                }
+            },
+            choosePrev: function (event) {
+                let val = $('#textarea').val();
+                $('#textarea').val("").val(val);
+                if (this.predictionIndex === null) {
+                    this.predictionIndex = this.suggestions.length - 1;
+                } else {
+                    this.predictionIndex = this.predictionIndex > 0 ? this.predictionIndex - 1 : null;
+                }
             }
         }
-    })
+    });
 </script>
 </body>
 </html>
