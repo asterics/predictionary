@@ -414,3 +414,12 @@ test('trainFromInput', () => {
     expect(predictionary.predict('and ')).toEqual(['my']);
     expect(predictionary.predict('house ')).toEqual(['is']);
 });
+
+test('addWord, sanitize', () => {
+    predictionary.addWord(" heiße !");
+    expect(predictionary.predict('h')).toEqual(['heiße']);
+    predictionary.addWord("but, ");
+    expect(predictionary.predict('b')).toEqual(['but']);
+    predictionary.addWord("Don't\n ");
+    expect(predictionary.predict('d')).toEqual(["Don't"]);
+});

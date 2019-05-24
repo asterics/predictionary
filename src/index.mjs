@@ -100,9 +100,9 @@ function Predictionary() {
         }
         let dict = _dicts[dictionaryKey];
         if (typeof element === 'string') {
-            dict.addWord(element.trim());
+            dict.addWord(sanitize(element));
         } else if (element.word && typeof element.word === 'string') {
-            dict.addWord(element.word.trim(), element.rank);
+            dict.addWord(sanitize(element.word), element.rank);
         }
     };
 
@@ -258,6 +258,11 @@ function getUnique(array, compareKey) {
         .filter(e => array[e]).map(e => array[e]);
 
     return unique;
+}
+
+function sanitize(word) {
+    word = word || '';
+    return word.replace(/[^a-z0-9áéíóúñüäöß']/gim, '');
 }
 
 export default Predictionary;
