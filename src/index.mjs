@@ -199,7 +199,7 @@ function Predictionary() {
         if (options.maxPredicitons) {
             returnArray = predictions.slice(0, options.maxPredicitons);
         }
-        return returnArray.map(prediction => prediction.word);
+        return getUnique(returnArray, 'word').map(prediction => prediction.word);
     }
 }
 
@@ -217,6 +217,20 @@ function getLastWord(text) {
 
 function isLastWordCompleted(text) {
     return text[text.length - 1] === ' ';
+}
+
+function getUnique(array, compareKey) {
+
+    let unique = array
+        .map(e => e[compareKey])
+
+        // store the keys of the unique objects
+        .map((e, i, final) => final.indexOf(e) === i && i)
+
+        // eliminate the dead keys & store unique objects
+        .filter(e => array[e]).map(e => array[e]);
+
+    return unique;
 }
 
 export default Predictionary;

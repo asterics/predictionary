@@ -264,6 +264,15 @@ test('predict, with previous text, automatically', () => {
     expect(predictionary.predict('i want an ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
 });
 
+test('predict, eliminate duplicate suggestions', () => {
+    predictionary.addWords(fruits);
+    predictionary.refineDictionaries('Apricot');
+    predictionary.addDictionary(TESTKEY2, ['Apple', 'Apricot', 'apple'])
+    expect(predictionary.predict('ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'apple']));
+    expect(predictionary.predict('ap').length).toEqual(3);
+    expect(predictionary.predict('ap')[0]).toEqual('Apricot');
+});
+
 test('applyPrediction, automatically', () => {
     expect(predictionary.applyPrediction('i want an appl', 'Apple')).toEqual('i want an Apple ');
     expect(predictionary.applyPrediction('i want an Apple ', 'to')).toEqual('i want an Apple to ');
