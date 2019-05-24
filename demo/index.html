@@ -9,7 +9,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
     <script src="../dist/predictionary.js"></script>
 </head>
 <body>
@@ -17,7 +16,7 @@
     <h1>Predictionary Demo</h1>
     <div class="row">
         <label for="selectLang" class="two columns">Use dictionaries: </label>
-        <select id="selectLang" class="two columns" @change="useDictionaries(event.target.value)">
+        <select id="selectLang" class="four columns" @change="useDictionaries(event.target.value)">
             <option selected value='["DICT_EN", "DICT_DE"]'>German + English</option>
             <option value='["DICT_EN"]'>English</option>
             <option value='["DICT_DE"]'>German</option>
@@ -25,18 +24,24 @@
     </div>
     <div class="row">
         <label for="inputNumber" class="two columns">Number of suggestions: </label>
-        <input type="number" id="inputNumber" class="two columns" v-model="nrOfSuggestions" min="1" max="30"
+        <input type="number" id="inputNumber" class="four columns" v-model="nrOfSuggestions" min="1" max="30"
                @change="refreshSuggestions"/>
     </div>
     <div class="row">
-        <label for="chkTrainFromChosen" class="two columns">Train from chosen suggestions: </label>
-        <input type="checkbox" id="chkTrainFromChosen" class="two columns" v-model="trainFromChosen"/>
+        <div class="nine columns offset-by-two">
+            <input type="checkbox" id="chklearnFromChosen" v-model="learnFromChosen" style="display: inline"/>
+            <label for="chklearnFromChosen" style="display: inline">learn from chosen suggestions</label>
+        </div>
     </div>
     <div class="row">
-        <label for="chkTrainFromType" class="two columns">Train from typing: </label>
-        <input type="checkbox" id="chkTrainFromType" class="two columns" v-model="trainFromType"/>
+        <div class="nine columns offset-by-two">
+            <input type="checkbox" id="chklearnFromType" v-model="learnFromType" style="display: inline"/>
+            <label for="chklearnFromType" style="display: inline">learn from typing</label>
+        </div>
     </div>
 
+    <br/>
+    <span>Type in the textfield, use arrow keys [Up], [Down] and [Enter] in order to choose suggestions:</span>
     <div class="row">
         <textarea id="textarea" class="six columns" v-model="input" @input="updateText"
                   @keyup.enter="choose" @keyup.up="choosePrev" @keyup.down="chooseNext"></textarea>
@@ -79,10 +84,6 @@
         });
     }
 
-    let debounceFn = _.debounce(function (thiz) {
-        thiz.refreshSuggestions();
-    }, 300);
-
     let vueApp = new Vue({
         el: '#app',
         data: {
@@ -90,19 +91,24 @@
             suggestions: [],
             nrOfSuggestions: 10,
             predictionIndex: null,
-            trainFromType: false,
-            trainFromChosen: true
+            learnFromType: true,
+            learnFromChosen: true,
+            timeoutHandler: null
         },
         methods: {
             updateText: function () {
-                if (this.trainFromType) {
-                    predictionary.trainFromInput(this.input);
+                let thiz = this;
+                if (thiz.learnFromType) {
+                    predictionary.learnFromInput(thiz.input);
                 }
-                debounceFn(this);
+                clearTimeout(thiz.timeoutHandler);
+                thiz.timeoutHandler = setTimeout(function () {
+                    thiz.refreshSuggestions();
+                }, 300);
             },
             add: function (suggestion) {
                 this.input = predictionary.applyPrediction(this.input, suggestion, {
-                    dontRefine: !this.trainFromChosen
+                    dontLearn: !this.learnFromChosen
                 });
                 $('#textarea').focus();
                 this.predictionIndex = null;
@@ -136,6 +142,11 @@
             },
             refreshSuggestions: function () {
                 this.suggestions = predictionary.predict(this.input, {maxPredicitons: this.nrOfSuggestions});
+                if (this.suggestions.length === 1) {
+                    this.predictionIndex = 0;
+                } else {
+                    this.predictionIndex = null;
+                }
             }
         }
     });
