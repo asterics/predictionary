@@ -49,7 +49,11 @@ function Dictionary() {
         });
 
         if (possiblePredictions.length === 0 && input !== '') {
-            return thiz.predictCompleteWord(input.substring(0, input.length - 1), options);
+            let result = thiz.predictCompleteWord(input.substring(0, input.length - 1), options);
+            result.forEach(element => {
+                element.fuzzyMatch = true;
+            });
+            return result;
         }
         return possiblePredictions.map(element => {
             return {

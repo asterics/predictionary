@@ -344,3 +344,10 @@ test('importWords, with rank, custom separators, different order', () => {
     });
     expect(predictionary.predict('')).toEqual(expect.arrayContaining(['1', '2', '3']));
 });
+
+test('predict, fuzzyMatch correct order, two dictionaries', () => {
+    predictionary.addDictionary(TESTKEY, ['Apple', 'Apricot', 'Ant']);
+    predictionary.addDictionary(TESTKEY2, ['America']);
+    expect(predictionary.predict('Am', {maxPredicitons: 1})).toEqual(['America']);
+    expect(predictionary.predict('Am', {maxPredicitons: 4})).toEqual(expect.arrayContaining(['America', 'Apple', 'Apricot', 'Ant']));
+});

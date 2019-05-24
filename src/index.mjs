@@ -185,15 +185,18 @@ function Predictionary() {
             }
         });
         predictions.sort((a, b) => {
-            if (a.frequency === b.frequency && a.rank === b.rank) {
-                return 0;
+            if (a.fuzzyMatch !== b.fuzzyMatch) {
+                return a.fuzzyMatch ? 1 : -1;
             }
-            if (a.frequency === b.frequency && (a.rank || b.rank)) {
-                if (!a.rank) return 1;
-                if (!b.rank) return -1;
+            if (a.frequency !== b.frequency) {
+                return (a.frequency < b.frequency) ? 1 : -1;
+            }
+            if (a.rank !== b.rank) {
+                if (a.rank && b.rank === undefined) return -1;
+                if (b.rank && a.rank === undefined) return 1;
                 return (a.rank < b.rank) ? -1 : 1
             }
-            return (a.frequency < b.frequency) ? 1 : -1
+            return 0;
         });
         let returnArray = predictions;
         if (options.maxPredicitons) {
