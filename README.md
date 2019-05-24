@@ -1,5 +1,6 @@
 # predictionary
 JavaScript dictionary-based word prediction library.
+
 See working demo here: https://asterics.github.io/predictionary/demo/
 
 # Acknowledgements
