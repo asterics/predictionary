@@ -264,6 +264,14 @@ test('predict, with previous text, automatically', () => {
     expect(predictionary.predict('i want an ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
 });
 
+test('predict, other separator', () => {
+    predictionary.addWords(fruits);
+    expect(predictionary.predict('i want no\nap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
+    expect(predictionary.predict('i want no!ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
+    expect(predictionary.predict('i want no.ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
+    expect(predictionary.predict('i want no?ap')).toEqual(expect.arrayContaining(['Apple', 'Apricot']));
+});
+
 test('predict, eliminate duplicate suggestions', () => {
     predictionary.addWords(fruits);
     predictionary.refineDictionaries('Apricot');

@@ -220,7 +220,7 @@ function Predictionary() {
 
 function getLastWord(text, index) {
     index = index || 1;
-    let words = text.trim().split(' ');
+    let words = text.trim().split(new RegExp(INBETWEEN_CHARS_REGEX)).filter(word => !!word);
     let returnWord = words[words.length - index] || '';
     return returnWord.replace(new RegExp(INBETWEEN_CHARS_REGEX, 'g'), '');
 }
