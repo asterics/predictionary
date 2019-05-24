@@ -14,46 +14,96 @@
 </head>
 <body>
 <div id="app">
-    <h1>Predictionary Testpage</h1>
+    <h1>Predictionary Demo</h1>
     <div class="row">
-        <textarea id="textarea" class="six columns" :value="input" @input="update"
+        <label for="selectLang" class="two columns">Use dictionaries: </label>
+        <select id="selectLang" class="two columns" @change="useDictionaries(event.target.value)">
+            <option selected value='["DICT_EN", "DICT_DE"]'>German + English</option>
+            <option value='["DICT_EN"]'>English</option>
+            <option value='["DICT_DE"]'>German</option>
+        </select>
+    </div>
+    <div class="row">
+        <label for="inputNumber" class="two columns">Number of suggestions: </label>
+        <input type="number" id="inputNumber" class="two columns" v-model="nrOfSuggestions" min="1" max="30"
+               @change="refreshSuggestions"/>
+    </div>
+    <div class="row">
+        <label for="chkTrainFromChosen" class="two columns">Train from chosen suggestions: </label>
+        <input type="checkbox" id="chkTrainFromChosen" class="two columns" v-model="trainFromChosen"/>
+    </div>
+    <div class="row">
+        <label for="chkTrainFromType" class="two columns">Train from typing: </label>
+        <input type="checkbox" id="chkTrainFromType" class="two columns" v-model="trainFromType"/>
+    </div>
+
+    <div class="row">
+        <textarea id="textarea" class="six columns" v-model="input" @input="updateText"
                   @keyup.enter="choose" @keyup.up="choosePrev" @keyup.down="chooseNext"></textarea>
     </div>
 
     <div>
         <span>Suggestions: </span>
         <div class="row" v-for="(suggestion, index) in suggestions">
-            <button v-if="index === predictionIndex" @click="add(suggestion)" class="two columns chosen">{{suggestion}}</button>
-            <button v-if="index !== predictionIndex" @click="add(suggestion)" class="two columns">{{suggestion}}</button>
+            <button v-if="index === predictionIndex" @click="add(suggestion)" class="two columns chosen">
+                {{suggestion}}
+            </button>
+            <button v-if="index !== predictionIndex" @click="add(suggestion)" class="two columns">{{suggestion}}
+            </button>
         </div>
     </div>
 </div>
 
 <script>
     let predictionary = Predictionary.instance();
+    let DICT_DE = 'DICT_DE';
+    let DICT_EN = 'DICT_EN';
+
+    let startTime = new Date().getTime();
     $.get('words_de.txt').then(result => {
-        predictionary.importWords(result, {
+        importWords(result, DICT_DE);
+        console.log('finish DE after: ' + (new Date().getTime() - startTime))
+    });
+    $.get('words_en.txt').then(result => {
+        importWords(result, DICT_EN);
+        console.log('finish EN after: ' + (new Date().getTime() - startTime))
+    });
+
+    function importWords(string, dictionaryKey) {
+        predictionary.importWords(string, {
             elementSeparator: '\n',
             rankSeparator: ' ',
             wordPosition: 2,
-            rankPosition: 0
+            rankPosition: 0,
+            addToDictionary: dictionaryKey
         });
-    });
+    }
+
+    let debounceFn = _.debounce(function (thiz) {
+        thiz.refreshSuggestions();
+    }, 300);
 
     let vueApp = new Vue({
         el: '#app',
         data: {
             input: '',
             suggestions: [],
-            predictionIndex: null
+            nrOfSuggestions: 10,
+            predictionIndex: null,
+            trainFromType: false,
+            trainFromChosen: true
         },
         methods: {
-            update: _.debounce(function (e) {
-                this.suggestions = predictionary.predict(e.target.value, {maxPredicitons: 10});
-                this.input = e.target.value;
-            }, 300),
+            updateText: function () {
+                if (this.trainFromType) {
+                    predictionary.trainFromInput(this.input);
+                }
+                debounceFn(this);
+            },
             add: function (suggestion) {
-                this.input = predictionary.applyPrediction(this.input, suggestion);
+                this.input = predictionary.applyPrediction(this.input, suggestion, {
+                    dontRefine: !this.trainFromChosen
+                });
                 $('#textarea').focus();
                 this.predictionIndex = null;
             },
@@ -61,11 +111,11 @@
                 if (this.predictionIndex === null) {
                     return;
                 }
+                if (this.input[this.input.length - 1] === '\n') this.input = this.input.slice(0, -1);
                 this.add(this.suggestions[this.predictionIndex]);
             },
             chooseNext: function (event) {
-                let val = $('#textarea').val();
-                $('#textarea').val("").val(val);
+                setCursorToLastPosition();
                 if (this.predictionIndex === null) {
                     this.predictionIndex = 0;
                 } else {
@@ -73,16 +123,29 @@
                 }
             },
             choosePrev: function (event) {
-                let val = $('#textarea').val();
-                $('#textarea').val("").val(val);
+                setCursorToLastPosition();
                 if (this.predictionIndex === null) {
                     this.predictionIndex = this.suggestions.length - 1;
                 } else {
                     this.predictionIndex = this.predictionIndex > 0 ? this.predictionIndex - 1 : null;
                 }
+            },
+            useDictionaries: function (keys) {
+                predictionary.useDictionaries(JSON.parse(keys));
+                this.refreshSuggestions();
+            },
+            refreshSuggestions: function () {
+                this.suggestions = predictionary.predict(this.input, {maxPredicitons: this.nrOfSuggestions});
             }
         }
     });
+
+    function setCursorToLastPosition() {
+        let val = $('#textarea').val();
+        $('#textarea').val("").val(val).focus();
+    }
+
+    setCursorToLastPosition();
 </script>
 </body>
 </html>
