@@ -154,20 +154,20 @@ function Predictionary() {
         options = options || {};
         let addToDictionary = options.addToDictionary || (thiz.isUsingOnlyDefaultDictionary() ? thiz.DEFAULT_DICTIONARY_KEY : null);
         let shouldCompleteLastWord = options.shouldCompleteLastWord !== undefined ? options.shouldCompleteLastWord : !isLastWordCompleted(input);
-        let dontRefine = options.dontRefine;
+        let dontLearn = options.dontLearn;
         let lastWord = getLastWord(input);
         let preLastWord = getLastWord(input, 2);
         let temp = shouldCompleteLastWord ? input.substring(0, input.lastIndexOf(lastWord)) : input;
         if (temp.length > 0 && (!isLastWordCompleted(temp) || new RegExp(SENTENCE_END_CHARS_REGEX).test(temp[temp.length - 1]))) {
             temp += ' ';
         }
-        if (!dontRefine) {
-            thiz.train(chosenPrediction, !shouldCompleteLastWord ? lastWord : preLastWord, addToDictionary);
+        if (!dontLearn) {
+            thiz.learn(chosenPrediction, !shouldCompleteLastWord ? lastWord : preLastWord, addToDictionary);
         }
         return temp + chosenPrediction + ' ';
     };
 
-    thiz.train = function (chosenWord, previousWord, addToDictionary) {
+    thiz.learn = function (chosenWord, previousWord, addToDictionary) {
         addToDictionary = addToDictionary || thiz.DEFAULT_DICTIONARY_KEY;
         if (!_dicts[addToDictionary]) {
             thiz.addDictionary(addToDictionary);
@@ -175,18 +175,18 @@ function Predictionary() {
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
             if (!dict.disabled) {
-                dict.refine(chosenWord, previousWord, addToDictionary === key);
+                dict.learn(chosenWord, previousWord, addToDictionary === key);
             }
         });
     };
 
-    thiz.trainFromInput = function (input, dictionaryKey) {
+    thiz.learnFromInput = function (input, dictionaryKey) {
         if (isLastWordCompleted(input)) {
             let chosenWord = getLastWord(input, 2);
             let previousWord = getLastWord(input, 3);
             if (chosenWord && chosenWord !== _lastChosenWord) {
                 _lastChosenWord = chosenWord;
-                thiz.train(chosenWord, previousWord, dictionaryKey);
+                thiz.learn(chosenWord, previousWord, dictionaryKey);
             }
         }
     };

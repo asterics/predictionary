@@ -78,7 +78,7 @@ function Dictionary() {
         return predictions;
     };
 
-    thiz.refine = function (chosenWord, previousWord, addIfNotExisting) {
+    thiz.learn = function (chosenWord, previousWord, addIfNotExisting) {
         if (!chosenWord || (!thiz.contains(chosenWord) && !addIfNotExisting)) {
             return;
         }
