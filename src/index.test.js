@@ -106,7 +106,7 @@ test('addWord, with rank', () => {
 
 test('refine, with adding', () => {
     predictionary.addWords(fruits);
-    predictionary.train('Test', null, true);
+    predictionary.train('Test');
     let result = predictionary.predict('', {maxPredicitons: 1});
     expect(result.length).toEqual(1);
     expect(result[0]).toEqual('Test');
@@ -389,4 +389,28 @@ test('getDictionaryKeys, isUsingOnlyDefaultDictionary, custom', () => {
     predictionary.addDictionary(TESTKEY, fruits);
     expect(predictionary.getDictionaryKeys()).toEqual([TESTKEY]);
     expect(predictionary.isUsingOnlyDefaultDictionary()).toEqual(false);
+});
+
+test('trainFromInput', () => {
+    predictionary.trainFromInput('He');
+    predictionary.trainFromInput('Hello');
+    predictionary.trainFromInput('Hello my');
+    predictionary.trainFromInput('Hello my na');
+    predictionary.trainFromInput('Hello my name ');
+    expect(predictionary.predict('hello ')).toEqual(['my']);
+    predictionary.trainFromInput('Hello my name is ');
+    predictionary.trainFromInput('Hello my name is Mi');
+    predictionary.trainFromInput('Hello my name is Michael ');
+    predictionary.trainFromInput('Hello my name is Michael and ');
+    predictionary.trainFromInput('Hello my name is Michael and my ');
+    predictionary.trainFromInput('Hello my name is Michael and my house ');
+    predictionary.trainFromInput('Hello my name is Michael and my house is ');
+    predictionary.trainFromInput('Hello my name is Michael and my house is big.');
+    predictionary.trainFromInput('Hello my name is Michael and my house is big. yeah.');
+    expect(predictionary.predict('hello ')).toEqual(['my']);
+    expect(predictionary.predict('hello my ')).toEqual(expect.arrayContaining(['name', 'house']));
+    expect(predictionary.predict('This is ')).toEqual(expect.arrayContaining(['Michael', 'big']));
+    expect(predictionary.predict('name ')).toEqual(['is']);
+    expect(predictionary.predict('and ')).toEqual(['my']);
+    expect(predictionary.predict('house ')).toEqual(['is']);
 });

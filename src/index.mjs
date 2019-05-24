@@ -9,6 +9,8 @@ function Predictionary() {
     let PREDICT_METHOD_COMPLETE_WORD = 'PREDICT_METHOD_COMPLETE_WORD';
     let PREDICT_METHOD_NEXT_WORD = 'PREDICT_METHOD_NEXT_WORD';
     let _dicts = {};
+    let _lastChosenWord = null;
+    let _lastPreviousWord = null;
 
     thiz.loadDictionary = function (dictionaryJSON, dictionaryKey) {
         if (!dictionaryJSON) {
@@ -167,13 +169,28 @@ function Predictionary() {
     };
 
     thiz.train = function (chosenWord, previousWord, addToDictionary) {
-        addToDictionary = addToDictionary === true ? thiz.DEFAULT_DICTIONARY_KEY : addToDictionary;
+        addToDictionary = addToDictionary || thiz.DEFAULT_DICTIONARY_KEY;
+        if (!_dicts[addToDictionary]) {
+            thiz.addDictionary(addToDictionary);
+        }
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
             if (!dict.disabled) {
                 dict.refine(chosenWord, previousWord, addToDictionary === key);
             }
         });
+    };
+
+    thiz.trainFromInput = function (input, dictionaryKey) {
+        if (isLastWordCompleted(input)) {
+            let chosenWord = getLastWord(input, 2);
+            let previousWord = getLastWord(input, 3);
+            if (chosenWord && previousWord && chosenWord !== _lastChosenWord && previousWord !== _lastPreviousWord) {
+                _lastChosenWord = chosenWord;
+                _lastPreviousWord = previousWord;
+                thiz.train(chosenWord, previousWord, dictionaryKey);
+            }
+        }
     };
 
     thiz.getDictionaryKeys = function () {
