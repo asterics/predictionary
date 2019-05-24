@@ -1,7 +1,7 @@
 import Dictionary from "./dictionary.mjs";
 
-let INBETWEEN_CHARS_REGEX = "[\\s\\.\\?!]";
-let SENTENCE_END_CHARS_REGEX = "[\\.\\?!]";
+let INBETWEEN_CHARS_REGEX = "[\\s\\.\\?!,]";
+let SENTENCE_END_CHARS_REGEX = "[\\.\\?!,]";
 
 function Predictionary() {
     let thiz = this;
@@ -161,12 +161,12 @@ function Predictionary() {
             temp += ' ';
         }
         if (!dontRefine) {
-            thiz.refineDictionaries(chosenPrediction, !shouldCompleteLastWord ? lastWord : preLastWord, addToDictionary);
+            thiz.train(chosenPrediction, !shouldCompleteLastWord ? lastWord : preLastWord, addToDictionary);
         }
         return temp + chosenPrediction + ' ';
     };
 
-    thiz.refineDictionaries = function (chosenWord, previousWord, addToDictionary) {
+    thiz.train = function (chosenWord, previousWord, addToDictionary) {
         addToDictionary = addToDictionary === true ? thiz.DEFAULT_DICTIONARY_KEY : addToDictionary;
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
