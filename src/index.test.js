@@ -138,6 +138,13 @@ test('two dictionaries, predict', () => {
     expect(predictionary.predict('y')).toEqual(expect.arrayContaining(['Yuzu']));
 });
 
+test('two dictionaries, predict, duplicates, unique items', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addDictionary(TESTKEY2, ['Apple', 'America']);
+    predictionary.learn('Apple');
+    expect(predictionary.predict('A', {maxPredicitons: 4})).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado', 'America']));
+});
+
 test('two dictionaries, predict, learn', () => {
     predictionary.addDictionary(TESTKEY, fruits);
     predictionary.addDictionary(TESTKEY2, verbs);

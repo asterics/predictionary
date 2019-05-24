@@ -203,6 +203,7 @@ function Predictionary() {
     function predictInternal(input, options, predictType) {
         let predictions = [];
         options = options || {};
+        options.maxPredicitons = options.maxPredicitons || 100000;
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
             if (!dict.disabled) {
@@ -225,11 +226,13 @@ function Predictionary() {
             }
             return 0;
         });
-        let returnArray = predictions;
-        if (options.maxPredicitons) {
-            returnArray = predictions.slice(0, options.maxPredicitons);
+        let returnArray = [];
+        for (let i = 0; i < predictions.length && returnArray.length < options.maxPredicitons; i++) {
+            if (returnArray.indexOf(predictions[i].word) === -1) { //de-duplicate
+                returnArray.push(predictions[i].word);
+            }
         }
-        return getUnique(returnArray, 'word').map(prediction => prediction.word);
+        return returnArray;
     }
 }
 
@@ -242,20 +245,6 @@ function getLastWord(text, index) {
 
 function isLastWordCompleted(text) {
     return new RegExp(INBETWEEN_CHARS_REGEX).test(text[text.length - 1]);
-}
-
-function getUnique(array, compareKey) {
-
-    let unique = array
-        .map(e => e[compareKey])
-
-        // store the keys of the unique objects
-        .map((e, i, final) => final.indexOf(e) === i && i)
-
-        // eliminate the dead keys & store unique objects
-        .filter(e => array[e]).map(e => array[e]);
-
-    return unique;
 }
 
 function sanitize(word) {
