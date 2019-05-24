@@ -14,7 +14,7 @@ function Dictionary() {
 
     thiz.addWord = function (word, rank) {
         if (!word) {
-            throw 'word to add must not be empty.';
+            return;
         }
         if (!_dict[word]) {
             _dict[word] = itemFactory.createItem(word, rank);
