@@ -10,7 +10,6 @@ function Predictionary() {
     let PREDICT_METHOD_NEXT_WORD = 'PREDICT_METHOD_NEXT_WORD';
     let _dicts = {};
     let _lastChosenWord = null;
-    let _lastPreviousWord = null;
 
     thiz.loadDictionary = function (dictionaryJSON, dictionaryKey) {
         if (!dictionaryJSON) {
@@ -185,9 +184,8 @@ function Predictionary() {
         if (isLastWordCompleted(input)) {
             let chosenWord = getLastWord(input, 2);
             let previousWord = getLastWord(input, 3);
-            if (chosenWord && previousWord && chosenWord !== _lastChosenWord && previousWord !== _lastPreviousWord) {
+            if (chosenWord && chosenWord !== _lastChosenWord) {
                 _lastChosenWord = chosenWord;
-                _lastPreviousWord = previousWord;
                 thiz.train(chosenWord, previousWord, dictionaryKey);
             }
         }
@@ -262,7 +260,7 @@ function getUnique(array, compareKey) {
 
 function sanitize(word) {
     word = word || '';
-    return word.replace(/[^a-z0-9áéíóúñüäöß']/gim, '');
+    return word.replace(/[^a-z0-9áéíóúñüäöß'`´’]/gim, '');
 }
 
 export default Predictionary;

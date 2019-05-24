@@ -422,4 +422,10 @@ test('addWord, sanitize', () => {
     expect(predictionary.predict('b')).toEqual(['but']);
     predictionary.addWord("Don't\n ");
     expect(predictionary.predict('d')).toEqual(["Don't"]);
+    predictionary.addWord("didn`t");
+    expect(predictionary.predict('di')).toEqual(["didn`t"]);
+    predictionary.addWord("won’t");
+    expect(predictionary.predict('w')).toEqual(["won’t"]);
+    predictionary.addWord("Hello");
+    expect(predictionary.predict('hel')).toEqual(["Hello"]);
 });
