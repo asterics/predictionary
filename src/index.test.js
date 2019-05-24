@@ -303,10 +303,28 @@ test('applyPrediction, test automatic learning subsequent words', () => {
     expect(predictionary.predict('apple ')).toEqual(['Apricot']);
 });
 
-test('applyPrediction, test automatic learning subsequent words, new word add to dict', () => {
+test('applyPrediction, test automatic learning subsequent words, next word, new word add to dict', () => {
     predictionary.addWords(fruits);
-    expect(predictionary.applyPrediction('i want no ', 'Apricot', {addToDictionary: true})).toEqual('i want no Apricot ');
-    expect(predictionary.predict('no ')).toEqual(['Apricot']);
+    expect(predictionary.applyPrediction('i want no ', 'Apricot')).toEqual('i want no Apricot ');
+    expect(predictionary.predict('i want no  ')).toEqual(['Apricot']);
+    expect(predictionary.applyPrediction('i want no ', 'Apple')).toEqual('i want no Apple ');
+});
+
+test('applyPrediction, test automatic learning subsequent words, complete word, new word add to dict', () => {
+    predictionary.addWords(fruits);
+    expect(predictionary.applyPrediction('i want no ap', 'Apricot')).toEqual('i want no Apricot ');
+    expect(predictionary.predict('i want no ')).toEqual(['Apricot']);
+    expect(predictionary.applyPrediction('i want no ap', 'Apple')).toEqual('i want no Apple ');
+});
+
+test('applyPrediction, test automatic learning subsequent words, special inbetween chars', () => {
+    predictionary.addWords(fruits);
+    expect(predictionary.applyPrediction('i want all.', 'Apricot')).toEqual('i want all. Apricot ');
+    expect(predictionary.predict('i want all ')).toEqual(['Apricot']);
+    expect(predictionary.predict('i want all.')).toEqual(['Apricot']);
+    expect(predictionary.predict('i want all. ')).toEqual(['Apricot']);
+    expect(predictionary.predict('i want all! ')).toEqual(['Apricot']);
+    expect(predictionary.predict('i want all? ')).toEqual(['Apricot']);
 });
 
 test('importWords, default', () => {
@@ -350,4 +368,17 @@ test('predict, fuzzyMatch correct order, two dictionaries', () => {
     predictionary.addDictionary(TESTKEY2, ['America']);
     expect(predictionary.predict('Am', {maxPredicitons: 1})).toEqual(['America']);
     expect(predictionary.predict('Am', {maxPredicitons: 4})).toEqual(expect.arrayContaining(['America', 'Apple', 'Apricot', 'Ant']));
+});
+
+test('getDictionaryKeys, isUsingOnlyDefaultDictionary, default', () => {
+    expect(predictionary.isUsingOnlyDefaultDictionary()).toEqual(true);
+    predictionary.addWords(fruits);
+    expect(predictionary.getDictionaryKeys()).toEqual([predictionary.DEFAULT_DICTIONARY_KEY]);
+    expect(predictionary.isUsingOnlyDefaultDictionary()).toEqual(true);
+});
+
+test('getDictionaryKeys, isUsingOnlyDefaultDictionary, custom', () => {
+    predictionary.addDictionary(TESTKEY, fruits);
+    expect(predictionary.getDictionaryKeys()).toEqual([TESTKEY]);
+    expect(predictionary.isUsingOnlyDefaultDictionary()).toEqual(false);
 });

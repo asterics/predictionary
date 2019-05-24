@@ -1,18 +1,20 @@
 import Dictionary from "./dictionary.mjs";
 
+let INBETWEEN_CHARS_REGEX = "[\\s\\.\\?!]";
+let SENTENCE_END_CHARS_REGEX = "[\\.\\?!]";
+
 function Predictionary() {
-    let DEFAULT_DICTIONARY_KEY = 'DEFAULT_DICTIONARY_KEY';
+    let thiz = this;
+    thiz.DEFAULT_DICTIONARY_KEY = 'DEFAULT_DICTIONARY_KEY';
     let PREDICT_METHOD_COMPLETE_WORD = 'PREDICT_METHOD_COMPLETE_WORD';
     let PREDICT_METHOD_NEXT_WORD = 'PREDICT_METHOD_NEXT_WORD';
-
-    let thiz = this;
     let _dicts = {};
 
     thiz.loadDictionary = function (dictionaryJSON, dictionaryKey) {
         if (!dictionaryJSON) {
             throw 'dictionaryJSON must be specified.';
         }
-        dictionaryKey = dictionaryKey || DEFAULT_DICTIONARY_KEY;
+        dictionaryKey = dictionaryKey || thiz.DEFAULT_DICTIONARY_KEY;
         let dictionary = new Dictionary();
         dictionary.load(dictionaryJSON);
         _dicts[dictionaryKey] = dictionary;
@@ -30,7 +32,7 @@ function Predictionary() {
     };
 
     thiz.dictionaryToJSON = function (dictionaryKey) {
-        dictionaryKey = dictionaryKey || DEFAULT_DICTIONARY_KEY;
+        dictionaryKey = dictionaryKey || thiz.DEFAULT_DICTIONARY_KEY;
         let dict = _dicts[dictionaryKey];
         return dict ? dict.toJSON() : null;
     };
@@ -71,10 +73,10 @@ function Predictionary() {
     };
 
     thiz.addDictionary = function (dictionaryKey, words) {
-        if (!dictionaryKey && _dicts[DEFAULT_DICTIONARY_KEY]) {
+        if (!dictionaryKey && _dicts[thiz.DEFAULT_DICTIONARY_KEY]) {
             throw 'dictionaryKey must be specified.';
         }
-        dictionaryKey = dictionaryKey || DEFAULT_DICTIONARY_KEY;
+        dictionaryKey = dictionaryKey || thiz.DEFAULT_DICTIONARY_KEY;
         if (_dicts[dictionaryKey]) {
             throw 'dictionary already existing.';
         }
@@ -87,7 +89,7 @@ function Predictionary() {
     };
 
     thiz.addWord = function (element, dictionaryKey) {
-        dictionaryKey = dictionaryKey || DEFAULT_DICTIONARY_KEY;
+        dictionaryKey = dictionaryKey || thiz.DEFAULT_DICTIONARY_KEY;
         if (!element) {
             throw 'element to add not specified.';
         }
@@ -117,7 +119,7 @@ function Predictionary() {
         let rankSeparator = options.rankSeparator || ' ';
         let wordPosition = options.wordPosition || 0;
         let rankPosition = options.rankPosition;
-        let addToDictionary = options.addToDictionary || DEFAULT_DICTIONARY_KEY;
+        let addToDictionary = options.addToDictionary || thiz.DEFAULT_DICTIONARY_KEY;
 
         let lines = importString.split(elementSeparator);
         lines.forEach(line => {
@@ -149,28 +151,38 @@ function Predictionary() {
 
     thiz.applyPrediction = function (input, chosenPrediction, options) {
         options = options || {};
-        let addToDictionary = options.addToDictionary;
+        let addToDictionary = options.addToDictionary || (thiz.isUsingOnlyDefaultDictionary() ? thiz.DEFAULT_DICTIONARY_KEY : null);
         let shouldCompleteLastWord = options.shouldCompleteLastWord !== undefined ? options.shouldCompleteLastWord : !isLastWordCompleted(input);
         let dontRefine = options.dontRefine;
         let lastWord = getLastWord(input);
+        let preLastWord = getLastWord(input, 2);
         let temp = shouldCompleteLastWord ? input.substring(0, input.lastIndexOf(lastWord)) : input;
-        if (temp.length > 0 && !isLastWordCompleted(temp)) {
+        if (temp.length > 0 && (!isLastWordCompleted(temp) || new RegExp(SENTENCE_END_CHARS_REGEX).test(temp[temp.length - 1]))) {
             temp += ' ';
         }
         if (!dontRefine) {
-            thiz.refineDictionaries(chosenPrediction, !shouldCompleteLastWord ? lastWord : null, addToDictionary);
+            thiz.refineDictionaries(chosenPrediction, !shouldCompleteLastWord ? lastWord : preLastWord, addToDictionary);
         }
         return temp + chosenPrediction + ' ';
     };
 
     thiz.refineDictionaries = function (chosenWord, previousWord, addToDictionary) {
-        addToDictionary = addToDictionary === true ? DEFAULT_DICTIONARY_KEY : addToDictionary;
+        addToDictionary = addToDictionary === true ? thiz.DEFAULT_DICTIONARY_KEY : addToDictionary;
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
             if (!dict.disabled) {
                 dict.refine(chosenWord, previousWord, addToDictionary === key);
             }
         });
+    };
+
+    thiz.getDictionaryKeys = function () {
+        return Object.keys(_dicts);
+    };
+
+    thiz.isUsingOnlyDefaultDictionary = function () {
+        let keys = thiz.getDictionaryKeys();
+        return keys.length === 0 || (keys.length === 1 && keys[0] === thiz.DEFAULT_DICTIONARY_KEY);
     };
 
     function predictInternal(input, options, predictType) {
@@ -206,20 +218,15 @@ function Predictionary() {
     }
 }
 
-function getLastWord(text) {
-    text = text.trim();
-    let lastIndex = text.lastIndexOf(' ');
-    let lastWord = '';
-    if (lastIndex === -1) {
-        lastWord = text;
-    } else {
-        lastWord = text.substring(lastIndex);
-    }
-    return lastWord.trim();
+function getLastWord(text, index) {
+    index = index || 1;
+    let words = text.trim().split(' ');
+    let returnWord = words[words.length - index] || '';
+    return returnWord.replace(new RegExp(INBETWEEN_CHARS_REGEX, 'g'), '');
 }
 
 function isLastWordCompleted(text) {
-    return text[text.length - 1] === ' ';
+    return new RegExp(INBETWEEN_CHARS_REGEX).test(text[text.length - 1]);
 }
 
 function getUnique(array, compareKey) {
