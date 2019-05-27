@@ -398,6 +398,15 @@ test('getDictionaryKeys, isUsingOnlyDefaultDictionary, custom', () => {
     expect(predictionary.isUsingOnlyDefaultDictionary()).toEqual(false);
 });
 
+test('getDictionaryKeys, addWords', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(verbs, TESTKEY2);
+    expect(predictionary.getDictionaryKeys()).toEqual(expect.arrayContaining([TESTKEY, TESTKEY2]));
+    expect(predictionary.getDictionaryKeys(true)).toEqual(expect.arrayContaining([TESTKEY, TESTKEY2]));
+    predictionary.useDictionary(TESTKEY);
+    expect(predictionary.getDictionaryKeys(true)).toEqual(expect.arrayContaining([TESTKEY]));
+});
+
 test('learnFromInput', () => {
     predictionary.learnFromInput('He');
     predictionary.learnFromInput('Hello');
@@ -435,4 +444,102 @@ test('addWord, sanitize', () => {
     expect(predictionary.predict('w')).toEqual(["won’t"]);
     predictionary.addWord("Hello");
     expect(predictionary.predict('hel')).toEqual(["Hello"]);
+});
+
+test('getWords, default dictionary, additional dictionary', () => {
+    predictionary.addWords(fruits);
+    expect(predictionary.getWords()).toEqual(expect.arrayContaining(fruits));
+    predictionary.addDictionary(TESTKEY, ['test']);
+    expect(predictionary.getWords()).toEqual(expect.arrayContaining(fruits.concat(['test'])));
+    expect(predictionary.getWords(TESTKEY)).toEqual(['test']);
+    expect(predictionary.getWords(TESTKEY2)).toEqual([]);
+});
+
+test('getWords, one dictionary, learn to correct dictionary, unknown words', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    expect(predictionary.getWords(TESTKEY)).toEqual(expect.arrayContaining(fruits));
+    predictionary.learn('test', 'test2');
+    expect(predictionary.getWords(TESTKEY)).toEqual(expect.arrayContaining(fruits));
+    expect(predictionary.getWords().length).toEqual(fruits.length + 2);
+});
+
+test('getWords, one dictionary, learn to correct dictionary, known chosen word', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.learn('Apple', 'test');
+    expect(predictionary.getWords(TESTKEY)).toEqual(expect.arrayContaining(fruits.concat(['test'])));
+    expect(predictionary.getWords().length).toEqual(fruits.length + 1);
+});
+
+test('getWords, one dictionary, learn to correct dictionary, known previous word', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.learn('test', 'Apple');
+    expect(predictionary.getWords(TESTKEY)).toEqual(expect.arrayContaining(fruits.concat(['test'])));
+    expect(predictionary.getWords().length).toEqual(fruits.length + 1);
+});
+
+test('getWords, two dictionaries, learn to correct dictionary, word existing', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(verbs, TESTKEY2);
+    predictionary.learn('Apple', 'an');
+    expect(predictionary.getWords(TESTKEY)).toEqual(expect.arrayContaining(fruits.concat(['an'])));
+    expect(predictionary.getWords(TESTKEY2).length).toEqual(verbs.length);
+    expect(predictionary.getWords().length).toEqual(verbs.length + fruits.length + 1);
+});
+
+test('getWords, two dictionaries, learn to correct dictionary, word not existing', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(verbs, TESTKEY2);
+    predictionary.learn('Flower', 'an');
+    expect(predictionary.getWords(TESTKEY).length).toEqual(fruits.length);
+    expect(predictionary.getWords(TESTKEY2).length).toEqual(verbs.length);
+    expect(predictionary.getWords()).toEqual(expect.arrayContaining(fruits.concat(['an', 'Flower'])));
+});
+
+test('getWords, apply prediction to correct dictionary', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(verbs, TESTKEY2);
+    predictionary.applyPrediction('i want an ap', 'Apple');
+    expect(predictionary.getWords().length).toEqual(fruits.length + verbs.length + 1);
+    expect(predictionary.getWords()).toEqual(expect.arrayContaining(fruits.concat(['an'])));
+});
+
+test('getWords, learn from input to correct dictionary', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(verbs, TESTKEY2);
+    predictionary.learnFromInput('Hello ');
+    predictionary.learnFromInput('Hello I ');
+    predictionary.learnFromInput('Hello I want ');
+    predictionary.learnFromInput('Hello I want an ');
+    predictionary.learnFromInput('Hello I want an apple ');
+    predictionary.learnFromInput('Hello I want an apple now ');
+    expect(predictionary.getWords(TESTKEY2)).toEqual(expect.arrayContaining(verbs.concat(['I'])));
+    expect(predictionary.getWords().length).toEqual(fruits.length + verbs.length + 5);
+});
+
+test('getWords, learn from input to correct dictionary', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(verbs, TESTKEY2);
+    predictionary.learnFromInput('Apple ');
+    predictionary.learnFromInput('Apple is ');
+    predictionary.learnFromInput('Apple is a ');
+    predictionary.learnFromInput('Apple is a fruit ');
+    predictionary.learnFromInput('Play ');
+    predictionary.learnFromInput('Play something ');
+    predictionary.learnFromInput('Play something with ');
+    predictionary.learnFromInput('Play something with me ');
+    expect(predictionary.getWords(TESTKEY)).toEqual(expect.arrayContaining(fruits.concat(['is', 'a'])));
+    expect(predictionary.getWords(TESTKEY2)).toEqual(expect.arrayContaining(verbs.concat(['something', 'with'])));
+    expect(predictionary.getWords().length).toEqual(fruits.length + verbs.length + 4);
+});
+
+test('hasWord', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(verbs, TESTKEY2);
+    expect(predictionary.hasWord('apple')).toEqual(true);
+    expect(predictionary.hasWord('become')).toEqual(true);
+    expect(predictionary.hasWord('become', TESTKEY)).toEqual(false);
+    expect(predictionary.hasWord('become', TESTKEY2)).toEqual(true);
+    expect(predictionary.hasWord('apple', TESTKEY)).toEqual(true);
+    expect(predictionary.hasWord('apple', TESTKEY, true)).toEqual(false);
+    expect(predictionary.hasWord('Apple', TESTKEY, true)).toEqual(true);
 });

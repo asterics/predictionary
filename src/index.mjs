@@ -138,6 +138,24 @@ function Predictionary() {
         });
     };
 
+    thiz.getWords = function (dictionaryKey) {
+        let words = [];
+        if (!dictionaryKey) {
+            thiz.getDictionaryKeys().forEach(key => {
+                words = words.concat(_dicts[key].getWords())
+            });
+        } else if (_dicts[dictionaryKey]) {
+            words = _dicts[dictionaryKey].getWords();
+        }
+        return words;
+    };
+
+    thiz.hasWord = function (word, dictionaryKey, matchCase) {
+        let allElementsString = " " + thiz.getWords(dictionaryKey).join(" ") + " ";
+        let flag = matchCase ? "" : "i";
+        return new RegExp(" " + word + " ", flag).test(allElementsString);
+    };
+
     thiz.predict = function (input, options) {
         return predictInternal(input, options);
     };
@@ -168,6 +186,22 @@ function Predictionary() {
     };
 
     thiz.learn = function (chosenWord, previousWord, addToDictionary) {
+        if (thiz.getDictionaryKeys(true).length > 0 && (!addToDictionary || !_dicts[addToDictionary])) {
+            let currentHighscore = 0;
+            thiz.getDictionaryKeys(true).forEach(key => {
+                let score = 0;
+                if (thiz.hasWord(chosenWord, key)) {
+                    score += 2;
+                }
+                if (thiz.hasWord(previousWord, key)) {
+                    score++;
+                }
+                if (score > 0 && score >= currentHighscore) {
+                    currentHighscore = score;
+                    addToDictionary = key;
+                }
+            });
+        }
         addToDictionary = addToDictionary || thiz.DEFAULT_DICTIONARY_KEY;
         if (!_dicts[addToDictionary]) {
             thiz.addDictionary(addToDictionary);
@@ -191,7 +225,10 @@ function Predictionary() {
         }
     };
 
-    thiz.getDictionaryKeys = function () {
+    thiz.getDictionaryKeys = function (onlyEnabled) {
+        if (onlyEnabled) {
+            return Object.keys(_dicts).filter(element => !_dicts[element].disabled);
+        }
         return Object.keys(_dicts);
     };
 
