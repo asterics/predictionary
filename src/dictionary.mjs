@@ -100,6 +100,10 @@ function Dictionary() {
         }
     };
 
+    thiz.getWords = function () {
+        return Object.keys(_dict);
+    };
+
     function getDictItemsAnyCase(word) {
         if (!word) {
             return [];
