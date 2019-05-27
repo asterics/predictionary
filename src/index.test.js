@@ -183,6 +183,18 @@ test('two dictionaries, useDictionary, useAllDictionaries, useDictionaries', () 
     expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ask', 'Apple2', 'Apple', 'Apricot', 'Avocado']));
 });
 
+test('useDictionaries, use default by default', () => {
+    predictionary.addWord('ATestword');
+    predictionary.addDictionary(TESTKEY, fruits);
+    predictionary.addDictionary(TESTKEY2, verbs);
+    predictionary.useDictionaries([TESTKEY]);
+    expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ATestword', 'Apple', 'Apricot', 'Avocado']));
+    predictionary.useDictionaries([TESTKEY2]);
+    expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['ask', 'ATestword']));
+    predictionary.useDictionaries([]);
+    expect(predictionary.predict('A')).toEqual(['ATestword']);
+});
+
 test('learn, with previous word, predict automatically', () => {
     predictionary.addWords(fruits);
     predictionary.learn('Banana', 'Apple');

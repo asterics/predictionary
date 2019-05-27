@@ -63,7 +63,7 @@ function Predictionary() {
             throw 'dictionaryKeys must be specified and of type Array.';
         }
         Object.keys(_dicts).forEach(key => {
-            _dicts[key].disabled = !dictionaryKeys.includes(key);
+            _dicts[key].disabled = !dictionaryKeys.includes(key) && key !== thiz.DEFAULT_DICTIONARY_KEY;
         });
     };
 
