@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "build": "npm run generate-docs && webpack --config webpack.config.js --env.production",
-    "generate-docs": "jsdoc -c jsdoc.config.json"
+    "generate-docs": "jsdoc -c jsdoc.config.json",
+    "update-pages": "cp scripts/updatePages.sh scripts/updatePages.tmp.sh && sh scripts/updatePages.tmp.sh && rm scripts/updatePages.tmp.sh"
   },
   "repository": {
     "type": "git",
