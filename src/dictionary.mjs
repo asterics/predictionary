@@ -5,11 +5,19 @@ function Dictionary() {
     let _dict = {};
 
     thiz.load = function (dictionaryJSON) {
-        _dict = JSON.parse(dictionaryJSON);
+        let importDict = JSON.parse(dictionaryJSON);
+        Object.keys(importDict).forEach(key => {
+            importDict[key].w = key;
+        });
+        _dict = importDict;
     };
 
     thiz.toJSON = function () {
-        return JSON.stringify(_dict);
+        let copy = JSON.parse(JSON.stringify(_dict));
+        Object.keys(copy).forEach(key => {
+            delete copy[key].w;
+        });
+        return JSON.stringify(copy);
     };
 
     thiz.addWord = function (word, rank) {

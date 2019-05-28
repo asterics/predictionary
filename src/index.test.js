@@ -116,6 +116,7 @@ test('dictionariesToJSON, loadDictionaries', () => {
     predictionary.addWords(fruits);
     predictionary.addWord("Apple2");
     let json = predictionary.dictionariesToJSON();
+    expect(json.length).toBeLessThan(2500);
     let newPredictionary = new Predictionary();
     newPredictionary.loadDictionaries(json);
     expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['Apple2', 'Apple', 'Apricot', 'Avocado']));
