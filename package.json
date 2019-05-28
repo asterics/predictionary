@@ -5,7 +5,7 @@
   "main": "src/index",
   "scripts": {
     "test": "jest",
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js --env.production"
   },
   "repository": {
     "type": "git",

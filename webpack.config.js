@@ -3,7 +3,7 @@ var path = require('path');
 module.exports = env => {
     var buildDir = 'dist/';
     var entryScript = './src/index.mjs';
-    var outputFilename = 'predictionary.js';
+    var outputFilename = 'predictionary.min.js';
     var libraryName = 'Predictionary';
     var mode = env && env.production ? 'production' : 'development';
 
