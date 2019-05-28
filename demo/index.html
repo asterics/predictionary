@@ -67,16 +67,16 @@
 
     let startTime = new Date().getTime();
     $.get('words_de.txt').then(function (result) {
-        importWords(result, DICT_DE);
+        parseWords(result, DICT_DE);
         console.log('finish DE after: ' + (new Date().getTime() - startTime))
     });
     $.get('words_en.txt').then(function (result) {
-        importWords(result, DICT_EN);
+        parseWords(result, DICT_EN);
         console.log('finish EN after: ' + (new Date().getTime() - startTime))
     });
 
-    function importWords(string, dictionaryKey) {
-        predictionary.importWords(string, {
+    function parseWords(string, dictionaryKey) {
+        predictionary.parseWords(string, {
             elementSeparator: '\n',
             rankSeparator: ' ',
             wordPosition: 2,

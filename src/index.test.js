@@ -34,7 +34,7 @@ test('addDictionary, predict, sequence', () => {
     expect(predictionary.predict('apple')).toEqual(expect.arrayContaining(['Apple']));
     expect(predictionary.predict('apple2')).toEqual(expect.arrayContaining(['Apple']));
     expect(predictionary.predict('appletreeflowerbanana')).toEqual(expect.arrayContaining(['Apple']));
-    expect(predictionary.predict('')).toEqual(expect.arrayContaining(fruits));
+    expect(predictionary.predict('', {maxPredicitons: 1000})).toEqual(expect.arrayContaining(fruits));
     expect(predictionary.predict('b')).toEqual(expect.arrayContaining(['Bilberry', 'Blackberry', 'Blackcurrant', 'Blueberry', 'Boysenberry']));
     expect(predictionary.predict('bl')).toEqual(expect.arrayContaining(['Blackberry', 'Blackcurrant', 'Blueberry']));
     expect(predictionary.predict('bla')).toEqual(expect.arrayContaining(['Blackberry', 'Blackcurrant']));
@@ -57,9 +57,9 @@ test('predict, learn', () => {
 
 test('predict empty, learn', () => {
     predictionary.addWords(fruits);
-    expect(predictionary.predict('')).toEqual(expect.arrayContaining(fruits));
+    expect(predictionary.predict('', {maxPredicitons: 1000})).toEqual(expect.arrayContaining(fruits));
     predictionary.learn('Cherry');
-    let result = predictionary.predict('');
+    let result = predictionary.predict('', {maxPredicitons: 1000});
     expect(result).toEqual(expect.arrayContaining(fruits));
     expect(result[0]).toEqual('Cherry');
 });
@@ -86,9 +86,9 @@ test('predict, option numberOfPredictions, learn', () => {
 test('addWord, single string', () => {
     predictionary.addWords(fruits);
     predictionary.addWord('Test');
-    expect(predictionary.predict('')).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
+    expect(predictionary.predict('', {maxPredicitons: 1000})).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
     predictionary.learn('Test');
-    let result = predictionary.predict('');
+    let result = predictionary.predict('', {maxPredicitons: 1000});
     expect(result).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
     expect(result[0]).toEqual('Test');
 });
@@ -99,7 +99,7 @@ test('addWord, with rank', () => {
         word: 'Test',
         rank: 1
     });
-    let result = predictionary.predict('');
+    let result = predictionary.predict('',{maxPredicitons: 1000});
     expect(result).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
     expect(result[0]).toEqual('Test');
 });
@@ -355,23 +355,23 @@ test('applyPrediction, test automatic learning subsequent words, special inbetwe
     expect(predictionary.predict('i want all? ')).toEqual(['Apricot']);
 });
 
-test('importWords, default', () => {
+test('parseWords, default', () => {
     let importString = 'apple;banana;lemon';
-    predictionary.importWords(importString);
+    predictionary.parseWords(importString);
     expect(predictionary.predict('')).toEqual(expect.arrayContaining(['apple', 'banana', 'lemon']));
 });
 
-test('importWords, custom separator', () => {
+test('parseWords, custom separator', () => {
     let importString = 'apple\nbanana\nlemon';
-    predictionary.importWords(importString, {
+    predictionary.parseWords(importString, {
         elementSeparator: '\n'
     });
     expect(predictionary.predict('')).toEqual(expect.arrayContaining(['apple', 'banana', 'lemon']));
 });
 
-test('importWords, with rank, custom separators', () => {
+test('parseWords, with rank, custom separators', () => {
     let importString = 'apple,3:banana,2:lemon,1';
-    predictionary.importWords(importString, {
+    predictionary.parseWords(importString, {
         elementSeparator: ':',
         rankSeparator: ',',
         wordPosition: 0,
@@ -380,9 +380,9 @@ test('importWords, with rank, custom separators', () => {
     expect(predictionary.predict('')).toEqual(['lemon', 'banana', 'apple']);
 });
 
-test('importWords, with rank, custom separators, different order', () => {
+test('parseWords, with rank, custom separators, different order', () => {
     let importString = 'apple,3:banana,2:lemon,1';
-    predictionary.importWords(importString, {
+    predictionary.parseWords(importString, {
         elementSeparator: ':',
         rankSeparator: ',',
         wordPosition: 1,

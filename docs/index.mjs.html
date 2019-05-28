@@ -1,4 +1,32 @@
-import Dictionary from "./dictionary.mjs";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: index.mjs</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: index.mjs</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import Dictionary from "./dictionary.mjs";
 
 let INBETWEEN_CHARS_REGEX = "[\\s\\.\\?!,]";
 let SENTENCE_END_CHARS_REGEX = "[\\.\\?!,]";
@@ -110,7 +138,7 @@ function Predictionary() {
             throw 'dictionaryKeys must be specified and of type Array.';
         }
         Object.keys(_dicts).forEach(key => {
-            _dicts[key].disabled = dictionaryKeys.indexOf(key) === -1 && key !== thiz.DEFAULT_DICTIONARY_KEY;
+            _dicts[key].disabled = dictionaryKeys.indexOf(key) === -1 &amp;&amp; key !== thiz.DEFAULT_DICTIONARY_KEY;
         });
     };
 
@@ -137,7 +165,7 @@ function Predictionary() {
             throw 'dictionary already existing.';
         }
         _dicts[dictionaryKey] = new Dictionary();
-        if (words && words instanceof Array) {
+        if (words &amp;&amp; words instanceof Array) {
             words.forEach(element => {
                 thiz.addWord(element, dictionaryKey);
             });
@@ -163,7 +191,7 @@ function Predictionary() {
         let dict = _dicts[dictionaryKey];
         if (typeof element === 'string') {
             dict.addWord(sanitize(element));
-        } else if (element.word && typeof element.word === 'string') {
+        } else if (element.word &amp;&amp; typeof element.word === 'string') {
             dict.addWord(sanitize(element.word), element.rank);
         }
     };
@@ -193,7 +221,7 @@ function Predictionary() {
      *        a plain text string in format: "word1;word2;word3;...", setting rankPosition=1 would be suited for
      *        a plain text in format: "word1 rank1;word2 rank2;word3 rank3;...".
      * @param {string} [options.elementSeparator=;] separator to split the elements from the importString
-     * @param {string} [options.rankSeparator=<space>] separator to split a single element into word and rank
+     * @param {string} [options.rankSeparator=&lt;space>] separator to split a single element into word and rank
      * @param {string} [options.wordPosition=0] position of the word in the element (0-based)
      * @param {string} [options.rankPosition] position of the rank in the element (0-based)
      * @param {string} [options.addToDictionary={@link Predictionary#DEFAULT_DICTIONARY_KEY}] key of the dictionary where
@@ -320,7 +348,7 @@ function Predictionary() {
         let lastWord = getLastWord(input);
         let preLastWord = getLastWord(input, 2);
         let temp = shouldCompleteLastWord ? input.substring(0, input.lastIndexOf(lastWord)) : input;
-        if (temp.length > 0 && (!isLastWordCompleted(temp) || new RegExp(SENTENCE_END_CHARS_REGEX).test(temp[temp.length - 1]))) {
+        if (temp.length > 0 &amp;&amp; (!isLastWordCompleted(temp) || new RegExp(SENTENCE_END_CHARS_REGEX).test(temp[temp.length - 1]))) {
             temp += ' ';
         }
         if (!dontLearn) {
@@ -337,7 +365,7 @@ function Predictionary() {
      * @param {string} [addToDictionary] the key of the dictionary where new words should be added. Automatically determined, if not specified.
      */
     this.learn = function (chosenWord, previousWord, addToDictionary) {
-        if (thiz.getDictionaryKeys(true).length > 0 && (!addToDictionary || !_dicts[addToDictionary])) {
+        if (thiz.getDictionaryKeys(true).length > 0 &amp;&amp; (!addToDictionary || !_dicts[addToDictionary])) {
             let currentHighscore = 0;
             thiz.getDictionaryKeys(true).forEach(key => {
                 let score = 0;
@@ -347,7 +375,7 @@ function Predictionary() {
                 if (thiz.hasWord(previousWord, key)) {
                     score++;
                 }
-                if (score > 0 && score >= currentHighscore) {
+                if (score > 0 &amp;&amp; score >= currentHighscore) {
                     currentHighscore = score;
                     addToDictionary = key;
                 }
@@ -376,7 +404,7 @@ function Predictionary() {
         if (isLastWordCompleted(input)) {
             let chosenWord = getLastWord(input, 2);
             let previousWord = getLastWord(input, 3);
-            if (chosenWord && chosenWord !== _lastChosenWord) {
+            if (chosenWord &amp;&amp; chosenWord !== _lastChosenWord) {
                 _lastChosenWord = chosenWord;
                 thiz.learn(chosenWord, previousWord, dictionaryKey);
             }
@@ -403,7 +431,7 @@ function Predictionary() {
      */
     this.isUsingOnlyDefaultDictionary = function () {
         let keys = thiz.getDictionaryKeys();
-        return keys.length === 0 || (keys.length === 1 && keys[0] === thiz.DEFAULT_DICTIONARY_KEY);
+        return keys.length === 0 || (keys.length === 1 &amp;&amp; keys[0] === thiz.DEFAULT_DICTIONARY_KEY);
     };
 
     function predictInternal(input, options, predictType) {
@@ -423,17 +451,17 @@ function Predictionary() {
                 return a.fuzzyMatch ? 1 : -1;
             }
             if (a.frequency !== b.frequency) {
-                return (a.frequency < b.frequency) ? 1 : -1;
+                return (a.frequency &lt; b.frequency) ? 1 : -1;
             }
             if (a.rank !== b.rank) {
-                if (a.rank && b.rank === undefined) return -1;
-                if (b.rank && a.rank === undefined) return 1;
-                return (a.rank < b.rank) ? -1 : 1
+                if (a.rank &amp;&amp; b.rank === undefined) return -1;
+                if (b.rank &amp;&amp; a.rank === undefined) return 1;
+                return (a.rank &lt; b.rank) ? -1 : 1
             }
             return 0;
         });
         let returnArray = [];
-        for (let i = 0; i < predictions.length && returnArray.length < options.maxPredicitons; i++) {
+        for (let i = 0; i &lt; predictions.length &amp;&amp; returnArray.length &lt; options.maxPredicitons; i++) {
             if (returnArray.indexOf(predictions[i].word) === -1) { //de-duplicate
                 returnArray.push(predictions[i].word);
             }
@@ -462,4 +490,26 @@ export default Predictionary;
 
 export function instance() {
     return new Predictionary();
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Predictionary.html">Predictionary</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Tue May 28 2019 17:03:15 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
