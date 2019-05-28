@@ -118,9 +118,9 @@ function Dictionary() {
         }
         let items = [];
         if (_dict[word]) items.push(_dict[word]);
-        if (_dict[word.toLowerCase()] && !items.includes(_dict[word.toLowerCase()])) items.push(_dict[word.toLowerCase()]);
-        if (_dict[word.toUpperCase()] && !items.includes(_dict[word.toUpperCase()])) items.push(_dict[word.toUpperCase()]);
-        if (_dict[capitalize(word)] && !items.includes(_dict[capitalize(word)])) items.push(_dict[capitalize(word)]);
+        if (_dict[word.toLowerCase()] && items.indexOf(_dict[word.toLowerCase()]) === -1) items.push(_dict[word.toLowerCase()]);
+        if (_dict[word.toUpperCase()] && items.indexOf(_dict[word.toUpperCase()]) === -1) items.push(_dict[word.toUpperCase()]);
+        if (_dict[capitalize(word)] && items.indexOf(_dict[capitalize(word)]) === -1) items.push(_dict[capitalize(word)]);
         return items;
     }
 

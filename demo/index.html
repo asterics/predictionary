@@ -9,7 +9,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="../dist/predictionary.js"></script>
+    <script src="../dist/predictionary.min.js"></script>
 </head>
 <body>
 <div id="app">
@@ -66,11 +66,11 @@
     let DICT_EN = 'DICT_EN';
 
     let startTime = new Date().getTime();
-    $.get('words_de.txt').then(result => {
+    $.get('words_de.txt').then(function (result) {
         importWords(result, DICT_DE);
         console.log('finish DE after: ' + (new Date().getTime() - startTime))
     });
-    $.get('words_en.txt').then(result => {
+    $.get('words_en.txt').then(function (result) {
         importWords(result, DICT_EN);
         console.log('finish EN after: ' + (new Date().getTime() - startTime))
     });
