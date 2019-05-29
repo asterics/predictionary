@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Predictionary Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <link rel="stylesheet" href="custom.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="../dist/predictionary.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <h1>Predictionary</h1>
+    <h2>Autocomplete Search Bar Demo</h2>
+    <div class="row">
+        <label for="inputNumber" class="two columns">Number of suggestions: </label>
+        <input type="number" id="inputNumber" class="four columns" v-model="nrOfSuggestions" min="1" max="30"
+               @change="refreshSuggestions"/>
+    </div>
+
+    <br/>
+    <span>Type in the textfield, use arrow keys [Up], [Down] and [Enter] in order to choose suggestions:</span>
+    <div class="row">
+        <input type="text" id="inputField" class="six columns" v-model="input" @input="updateText" @keyup.enter="choose" @keyup.up="choosePrev" @keyup.down="chooseNext"/>
+    </div>
+
+    <div>
+        <span>Suggestions: </span>
+        <div class="row" v-for="(suggestion, index) in suggestions">
+            <div v-if="index === predictionIndex" class="two columns chosen">
+                {{suggestion}}
+            </div>
+            <div v-if="index !== predictionIndex" class="two columns">{{suggestion}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let predictionary = Predictionary.instance();
+
+    $.get('words_en.txt').then(function (result) {
+        predictionary.parseWords(result, {
+            elementSeparator: '\n',
+            rankSeparator: ' ',
+            wordPosition: 2,
+            rankPosition: 0
+        });
+    });
+
+    let vueApp = new Vue({
+        el: '#app',
+        data: {
+            input: '',
+            suggestions: [],
+            nrOfSuggestions: 10,
+            predictionIndex: null,
+            timeoutHandler: null
+        },
+        methods: {
+            updateText: function () {
+                let thiz = this;
+                clearTimeout(thiz.timeoutHandler);
+                thiz.timeoutHandler = setTimeout(function () {
+                    thiz.refreshSuggestions();
+                }, 300);
+            },
+            choose: function () {
+                if (this.predictionIndex === null) {
+                    return;
+                }
+                if (this.input[this.input.length - 1] === '\n') this.input = this.input.slice(0, -1);
+            },
+            chooseNext: function (event) {
+                if (this.predictionIndex === null) {
+                    this.predictionIndex = 0;
+                } else {
+                    this.predictionIndex = (this.predictionIndex < this.suggestions.length - 1) ? this.predictionIndex + 1 : null;
+                }
+            },
+            choosePrev: function (event) {
+                if (this.predictionIndex === null) {
+                    this.predictionIndex = this.suggestions.length - 1;
+                } else {
+                    this.predictionIndex = this.predictionIndex > 0 ? this.predictionIndex - 1 : null;
+                }
+            },
+            refreshSuggestions: function () {
+                this.suggestions = predictionary.predict(this.input, {maxPredicitons: this.nrOfSuggestions, applyToInput: true});
+                if (this.suggestions.length === 1) {
+                    this.predictionIndex = 0;
+                } else {
+                    this.predictionIndex = null;
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
