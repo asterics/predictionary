@@ -364,6 +364,8 @@ function Predictionary() {
      * @param {string} [addToDictionary] the key of the dictionary where new words should be added. Automatically determined, if not specified.
      */
     this.learn = function (chosenWord, previousWord, addToDictionary) {
+        chosenWord = sanitize(chosenWord);
+        previousWord = sanitize(previousWord);
         if (thiz.getDictionaryKeys(true).length > 0 && (!addToDictionary || !_dicts[addToDictionary])) {
             let currentHighscore = 0;
             thiz.getDictionaryKeys(true).forEach(key => {
@@ -407,6 +409,21 @@ function Predictionary() {
                 _lastChosenWord = chosenWord;
                 thiz.learn(chosenWord, previousWord, dictionaryKey);
             }
+        }
+    };
+
+    /**
+     * Learns words and transition from a given text/phrase.
+     *
+     * @param {string} text the text to learn from
+     * @param {string} [dictionaryKey={@link Predictionary#DEFAULT_DICTIONARY_KEY}] the key of the dictionary where the words should
+     *         be learned/added.
+     */
+    this.learnFromText = function (text, dictionaryKey) {
+        text = text.replace(/\s\s/g, ' ');
+        let words = text.split(' ');
+        for (let i = 0; i < words.length - 1; i++) {
+            this.learn(words[i + 1], words[i], dictionaryKey);
         }
     };
 

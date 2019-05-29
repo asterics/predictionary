@@ -608,3 +608,15 @@ test('delete, whole sentence, ignore case', () => {
     predictionary.delete('apple', {ignoreCase: true});
     expect(predictionary.predict('an ')).toEqual([]);
 });
+
+test('learnFromText', () => {
+    predictionary.learnFromText("Hello this is a test. I want to predict something. Hello again.");
+    expect(predictionary.predict('hello ')).toEqual(expect.arrayContaining(['this', 'again']));
+    expect(predictionary.predict('this ')).toEqual(['is']);
+    expect(predictionary.predict('is ')).toEqual(['a']);
+    expect(predictionary.predict('test ')).toEqual(['I']);
+    expect(predictionary.predict('i ')).toEqual(['want']);
+    expect(predictionary.predict('want ')).toEqual(['to']);
+    expect(predictionary.predict('to ')).toEqual(['predict']);
+    expect(predictionary.predict('predict ')).toEqual(['something']);
+});
