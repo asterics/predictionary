@@ -14,7 +14,7 @@ or install the package via npm:
 # Basic usage
 Minimum working example for basic usage:
 
-```
+```javascript
 import Predictionary from 'predictionary' //only if installed via npm
 
 let predictionary = Predictionary.instance();
