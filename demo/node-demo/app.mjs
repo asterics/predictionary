@@ -1,4 +1,4 @@
-import * as Path from 'path'
+import * as Path from 'path' //<-- instead of require('path'), other common modules now also have to be imported with ES6 syntax
 import Predictionary from '../../src/index.mjs'
 
 let predictionary = Predictionary.instance();
