@@ -38,6 +38,23 @@ function Dictionary() {
         });
     };
 
+    thiz.deleteWord = function (word, ignoreCase) {
+        Object.keys(_dict).forEach(dictWord => {
+            let equalWord = ignoreCase ? word.toUpperCase() === dictWord.toUpperCase() : word === dictWord;
+            if (equalWord) {
+                delete _dict[dictWord];
+            } else {
+                let dictElement = _dict[dictWord];
+                Object.keys(dictElement.t).forEach(transistionWord => {
+                    let equalTransitionWord = ignoreCase ? word.toUpperCase() === transistionWord.toUpperCase() : word === transistionWord;
+                    if (equalTransitionWord) {
+                        delete dictElement.t[transistionWord];
+                    }
+                })
+            }
+        });
+    };
+
     thiz.contains = function (word, matchCase) {
         if (matchCase) {
             return !!_dict[word];

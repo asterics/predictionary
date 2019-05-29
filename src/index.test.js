@@ -99,7 +99,7 @@ test('addWord, with rank', () => {
         word: 'Test',
         rank: 1
     });
-    let result = predictionary.predict('',{maxPredicitons: 1000});
+    let result = predictionary.predict('', {maxPredicitons: 1000});
     expect(result).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
     expect(result[0]).toEqual('Test');
 });
@@ -555,4 +555,44 @@ test('hasWord', () => {
     expect(predictionary.hasWord('apple', TESTKEY)).toEqual(true);
     expect(predictionary.hasWord('apple', TESTKEY, true)).toEqual(false);
     expect(predictionary.hasWord('Apple', TESTKEY, true)).toEqual(true);
+});
+
+test('delete, single word, match case', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(['apple'], TESTKEY2);
+    expect(predictionary.predict('a')).toEqual(expect.arrayContaining(['apple', 'Apple']));
+    predictionary.delete('apple');
+    expect(predictionary.predict('a').includes('apple')).toEqual(false);
+    expect(predictionary.predict('a').includes('Apple')).toEqual(true);
+    predictionary.delete('Apple');
+    expect(predictionary.hasWord('Apple')).toEqual(false);
+});
+
+test('delete, single word, ignore case', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(['apple'], TESTKEY2);
+    expect(predictionary.predict('a')).toEqual(expect.arrayContaining(['apple', 'Apple']));
+    predictionary.delete('apple', {ignoreCase: true});
+    expect(predictionary.predict('a').includes('apple')).toEqual(false);
+    expect(predictionary.predict('a').includes('Apple')).toEqual(false);
+    expect(predictionary.hasWord('Apple')).toEqual(false);
+});
+
+test('delete, whole sentence, ignore case', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(['apple'], TESTKEY2);
+    expect(predictionary.predict('a')).toEqual(expect.arrayContaining(['apple', 'Apple']));
+    predictionary.delete('I want an apple', {ignoreCase: true});
+    expect(predictionary.predict('a').includes('apple')).toEqual(false);
+    expect(predictionary.predict('a').includes('Apple')).toEqual(false);
+    expect(predictionary.hasWord('Apple')).toEqual(false);
+    expect(predictionary.predict('a')).toEqual(expect.arrayContaining(['Apricot']));
+});
+
+test('delete, whole sentence, ignore case', () => {
+    predictionary.addWords(fruits);
+    predictionary.learn('Apple', 'an');
+    expect(predictionary.predict('an ')).toEqual(['Apple']);
+    predictionary.delete('apple', {ignoreCase: true});
+    expect(predictionary.predict('an ')).toEqual([]);
 });
