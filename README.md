@@ -4,7 +4,9 @@ JavaScript dictionary-based word prediction library with self-learning abilities
 ## Installation
 Drop the following into your page:
 
-`<script src="https://unpkg.com/predictionary/dist/predictionary.min.js"></script>`
+```html
+<script src="https://unpkg.com/predictionary/dist/predictionary.min.js"></script>
+```
 
 or install the package via npm:
 
