@@ -414,7 +414,7 @@ function Predictionary() {
     };
 
     /**
-     * Learns words and transition from a given text/phrase.
+     * Learns words and transitions from a given text/phrase.
      *
      * @param {string} text the text to learn from
      * @param {string} [dictionaryKey={@link Predictionary#DEFAULT_DICTIONARY_KEY}] the key of the dictionary where the words should
