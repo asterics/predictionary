@@ -467,8 +467,6 @@ Predictionary.instance = function () {
     return new Predictionary();
 };
 
-module.exports = Predictionary;
-
 export default Predictionary;
 
 export function instance() {
