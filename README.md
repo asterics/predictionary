@@ -10,7 +10,9 @@ Drop the following into your page:
 
 or install the package via npm:
 
-`npm install predictionary --save`
+```
+npm install predictionary --save
+```
 
 *Note:* to use inside a nodejs application use the flag `--experimental-modules` in order to be able to use Predictionary which is written as ES6 module. See [nodejs demo](https://github.com/asterics/predictionary/blob/master/demo/node-demo/app.mjs) which can be run with:
 
