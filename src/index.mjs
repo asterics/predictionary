@@ -288,6 +288,7 @@ function Predictionary() {
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
      * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
     this.predict = function (input, options) {
@@ -301,6 +302,7 @@ function Predictionary() {
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
      * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
     this.predictCompleteWord = function (input, options) {
@@ -315,6 +317,7 @@ function Predictionary() {
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
      * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
     this.predictNextWord = function (input, options) {
@@ -434,6 +437,7 @@ function Predictionary() {
         let predictions = [];
         options = options || {};
         options.maxPredicitons = options.maxPredicitons || 10;
+        options.applyToInput = options.applyToInput || false;
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
             if (!dict.disabled) {
@@ -459,7 +463,11 @@ function Predictionary() {
         let returnArray = [];
         for (let i = 0; i < predictions.length && returnArray.length < options.maxPredicitons; i++) {
             if (returnArray.indexOf(predictions[i].word) === -1) { //de-duplicate
-                returnArray.push(predictions[i].word);
+                if (options.applyToInput) {
+                    returnArray.push(thiz.applyPrediction(input, predictions[i].word, {dontLearn: true}));
+                } else {
+                    returnArray.push(predictions[i].word);
+                }
             }
         }
         return returnArray;
