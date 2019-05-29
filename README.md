@@ -32,4 +32,4 @@ See working demo: [to live demo](https://asterics.github.io/predictionary/demo/)
 see full API documentation: [to API documentation](https://asterics.github.io/predictionary/docs/Predictionary.html)
 
 ## Acknowledgements
-Word lists for demos are taken from http://corpus.leeds.ac.uk/list.html - thanks!
+Word lists for demos are taken from the Centre for Translation Studies, University of Leeds, see http://corpus.leeds.ac.uk/list.html - thanks!
