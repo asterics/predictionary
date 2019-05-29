@@ -17,9 +17,14 @@
     "dictionary",
     "prediction",
     "word",
-    "prediction",
+    "predictions",
     "next",
-    "words"
+    "words",
+    "predict",
+    "suggest",
+    "suggestions",
+    "text",
+    "write"
   ],
   "author": "Benjamin Klaus",
   "license": "AGPL-3.0",
