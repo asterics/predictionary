@@ -29,7 +29,8 @@
             <pre class="prettyprint source linenums"><code>import Dictionary from "./dictionary.mjs";
 
 let INBETWEEN_CHARS_REGEX = "[\\s\\.\\?!,]";
-let SENTENCE_END_CHARS_REGEX = "[\\.\\?!,]";
+let PHRASE_END_CHARS_REGEX = "[\\.\\?!,]";
+let SENTENCE_END_CHARS_REGEX = "[\\.\\?!]";
 
 /**
  * Constructs a Predictionary word prediction class. It's possible to manage multiple internal dictionaries, retrieve predictions
@@ -316,6 +317,7 @@ function Predictionary() {
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
      * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
     this.predict = function (input, options) {
@@ -329,6 +331,7 @@ function Predictionary() {
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
      * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
     this.predictCompleteWord = function (input, options) {
@@ -343,6 +346,7 @@ function Predictionary() {
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
      * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
     this.predictNextWord = function (input, options) {
@@ -372,7 +376,7 @@ function Predictionary() {
         let lastWord = getLastWord(input);
         let preLastWord = getLastWord(input, 2);
         let temp = shouldCompleteLastWord ? input.substring(0, input.lastIndexOf(lastWord)) : input;
-        if (temp.length > 0 &amp;&amp; (!isLastWordCompleted(temp) || new RegExp(SENTENCE_END_CHARS_REGEX).test(temp[temp.length - 1]))) {
+        if (temp.length > 0 &amp;&amp; (!isLastWordCompleted(temp) || new RegExp(PHRASE_END_CHARS_REGEX).test(temp[temp.length - 1]))) {
             temp += ' ';
         }
         if (!dontLearn) {
@@ -389,6 +393,8 @@ function Predictionary() {
      * @param {string} [addToDictionary] the key of the dictionary where new words should be added. Automatically determined, if not specified.
      */
     this.learn = function (chosenWord, previousWord, addToDictionary) {
+        chosenWord = sanitize(chosenWord);
+        previousWord = sanitize(previousWord);
         if (thiz.getDictionaryKeys(true).length > 0 &amp;&amp; (!addToDictionary || !_dicts[addToDictionary])) {
             let currentHighscore = 0;
             thiz.getDictionaryKeys(true).forEach(key => {
@@ -436,6 +442,24 @@ function Predictionary() {
     };
 
     /**
+     * Learns words and transitions from a given text/phrase.
+     *
+     * @param {string} text the text to learn from
+     * @param {string} [dictionaryKey={@link Predictionary#DEFAULT_DICTIONARY_KEY}] the key of the dictionary where the words should
+     *         be learned/added.
+     */
+    this.learnFromText = function (text, dictionaryKey) {
+        text = text.replace(/\s\s/g, ' ');
+        let sentences = text.split(new RegExp(SENTENCE_END_CHARS_REGEX));
+        sentences.forEach(sentence => {
+            let words = sentence.split(' ');
+            for (let i = 0; i &lt; words.length - 1; i++) {
+                this.learn(words[i + 1], words[i], dictionaryKey);
+            }
+        });
+    };
+
+    /**
      * Returns a list of currently loaded dictionary keys.
      *
      * @param {boolean} [onlyEnabled] if true only keys of dictionaries that are enabled are returned. See e.g.
@@ -462,6 +486,7 @@ function Predictionary() {
         let predictions = [];
         options = options || {};
         options.maxPredicitons = options.maxPredicitons || 10;
+        options.applyToInput = options.applyToInput || false;
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
             if (!dict.disabled) {
@@ -487,7 +512,11 @@ function Predictionary() {
         let returnArray = [];
         for (let i = 0; i &lt; predictions.length &amp;&amp; returnArray.length &lt; options.maxPredicitons; i++) {
             if (returnArray.indexOf(predictions[i].word) === -1) { //de-duplicate
-                returnArray.push(predictions[i].word);
+                if (options.applyToInput) {
+                    returnArray.push(thiz.applyPrediction(input, predictions[i].word, {dontLearn: true}));
+                } else {
+                    returnArray.push(predictions[i].word);
+                }
             }
         }
         return returnArray;
@@ -539,7 +568,7 @@ export function instance() {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Wed May 29 2019 11:53:16 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Wed May 29 2019 13:36:55 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>
