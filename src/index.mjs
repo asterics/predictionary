@@ -1,7 +1,8 @@
 import Dictionary from "./dictionary.mjs";
 
 let INBETWEEN_CHARS_REGEX = "[\\s\\.\\?!,]";
-let SENTENCE_END_CHARS_REGEX = "[\\.\\?!,]";
+let PHRASE_END_CHARS_REGEX = "[\\.\\?!,]";
+let SENTENCE_END_CHARS_REGEX = "[\\.\\?!]";
 
 /**
  * Constructs a Predictionary word prediction class. It's possible to manage multiple internal dictionaries, retrieve predictions
@@ -347,7 +348,7 @@ function Predictionary() {
         let lastWord = getLastWord(input);
         let preLastWord = getLastWord(input, 2);
         let temp = shouldCompleteLastWord ? input.substring(0, input.lastIndexOf(lastWord)) : input;
-        if (temp.length > 0 && (!isLastWordCompleted(temp) || new RegExp(SENTENCE_END_CHARS_REGEX).test(temp[temp.length - 1]))) {
+        if (temp.length > 0 && (!isLastWordCompleted(temp) || new RegExp(PHRASE_END_CHARS_REGEX).test(temp[temp.length - 1]))) {
             temp += ' ';
         }
         if (!dontLearn) {
@@ -421,10 +422,13 @@ function Predictionary() {
      */
     this.learnFromText = function (text, dictionaryKey) {
         text = text.replace(/\s\s/g, ' ');
-        let words = text.split(' ');
-        for (let i = 0; i < words.length - 1; i++) {
-            this.learn(words[i + 1], words[i], dictionaryKey);
-        }
+        let sentences = text.split(new RegExp(SENTENCE_END_CHARS_REGEX));
+        sentences.forEach(sentence => {
+            let words = sentence.split(' ');
+            for (let i = 0; i < words.length - 1; i++) {
+                this.learn(words[i + 1], words[i], dictionaryKey);
+            }
+        });
     };
 
     /**
