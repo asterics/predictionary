@@ -8,7 +8,8 @@
     "build": "npm run test && npm run generate-docs && webpack --config webpack.config.js --env.production",
     "generate-docs": "jsdoc -c jsdoc.config.json",
     "update-pages": "cp scripts/updatePages.sh scripts/updatePages.tmp.sh && sh scripts/updatePages.tmp.sh && rm scripts/updatePages.tmp.sh",
-    "release-minor": "release minor && npm publish"
+    "release-minor": "release minor && npm publish",
+    "node-demo": "node --experimental-modules demo/node-demo/app.mjs"
   },
   "repository": {
     "type": "git",
