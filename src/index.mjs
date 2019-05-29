@@ -458,6 +458,15 @@ function sanitize(word) {
     return word.replace(/[^a-z0-9áéíóúñüäöß'`´’]/gim, '');
 }
 
+/**
+ * Constructs a new instance of Predictionary
+ *
+ * @return {Predictionary}
+ */
+Predictionary.instance = function () {
+    return new Predictionary();
+};
+
 export default Predictionary;
 
 export function instance() {

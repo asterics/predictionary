@@ -7,7 +7,7 @@ let verbs = ['ask', 'be', 'become', 'begin', 'call', 'can', 'come', 'could', 'do
 let predictionary = null;
 
 beforeEach(() => {
-    predictionary = new Predictionary();
+    predictionary = Predictionary.instance();
 });
 
 test.skip('addDictionary, predict, performance', () => {
