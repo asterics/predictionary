@@ -1,33 +1,23 @@
 # Predictionary
 JavaScript dictionary-based word prediction library with self-learning abilities.
 
-# Installation and basic usage
-
-## Include built script bundle
+# Installation
 Drop the following into your page:
 
 `<script src="https://unpkg.com/predictionary/dist/predictionary.min.js"></script>`
 
-afterwards initialize and use Predictionary:
-
-```
-let predictionary = Predictionary.instance();
-predictionary.addWords(['apple', 'apricot', 'banana']);
-let suggestions = predictionary.predict('ap'); // == ['apple', 'apricot'];
-```
-
-## Use with npm
-Install the package:
+or install the package via npm:
 
 `npm install predictionary --save`
 
 
-afterwards initialize and use Predictionary:
+# Basic usage
+Minimum working example for basic usage:
 
 ```
-import Predictionary from 'predictionary'
+import Predictionary from 'predictionary' //only if installed via npm
 
-let predictionary = new Predictionary();
+let predictionary = Predictionary.instance();
 predictionary.addWords(['apple', 'apricot', 'banana']);
 let suggestions = predictionary.predict('ap'); // == ['apple', 'apricot'];
 ```
