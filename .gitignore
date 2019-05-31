@@ -1,3 +1,4 @@
 .idea/
 *.iml
 node_modules/
+demo/ngrams_words_*.txt
