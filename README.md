@@ -36,4 +36,6 @@ See working demo: [to live demo](https://asterics.github.io/predictionary/demo/)
 see full API documentation: [to API documentation](https://asterics.github.io/predictionary/docs/Predictionary.html)
 
 ## Acknowledgements
-Word lists for demos are taken from the Centre for Translation Studies, University of Leeds, see http://corpus.leeds.ac.uk/list.html - thanks!
+Thanks to Mark Davies, Professor of Linguistics at Brigham Young University (Utah), for the permission to use his n-gram sample data from https://www.ngrams.info/iweb.asp for training purposes of this library.
+
+Word frequency lists for demos are taken from the Centre for Translation Studies, University of Leeds, see http://corpus.leeds.ac.uk/list.html - thanks!
