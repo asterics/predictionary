@@ -116,7 +116,7 @@ function Dictionary() {
         let previousWordItem = getBestFittingItem(previousWord);
         let chosenWordItem = getBestFittingItem(chosenWord);
         chosenWordItem.f++;
-        if (previousWordItem) {
+        if (previousWordItem && previousWordItem.t) {
             if (previousWordItem.t[chosenWordItem.w]) {
                 previousWordItem.t[chosenWordItem.w]++;
             } else {

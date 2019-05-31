@@ -229,6 +229,7 @@ function Predictionary() {
         let elementSeparator = options.elementSeparator || ';';
         let rankSeparator = options.rankSeparator || ' ';
         let wordPosition = options.wordPosition || 0;
+        let wordPosition2 = options.wordPosition2;
         let rankPosition = options.rankPosition;
         let addToDictionary = options.addToDictionary || thiz.DEFAULT_DICTIONARY_KEY;
 
@@ -236,7 +237,13 @@ function Predictionary() {
         lines.forEach(line => {
             let elems = line.split(rankSeparator);
             let rank = parseInt(elems[rankPosition]);
-            if (elems[wordPosition]) {
+            if (wordPosition !== undefined && wordPosition2 !== undefined) {
+                let word1 = elems[wordPosition];
+                let word2 = elems[wordPosition2];
+                if (word1 && word2) {
+                    thiz.learn(word2, word1, addToDictionary);
+                }
+            } else if (elems[wordPosition]) {
                 let elementToAdd = {
                     word: elems[wordPosition].trim()
                 };
