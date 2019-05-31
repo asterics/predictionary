@@ -73,7 +73,7 @@ function Dictionary() {
             }
         });
 
-        if (possiblePredictions.length === 0 && input !== '') {
+        if (possiblePredictions.length === 0 && input.length > 1) {
             let result = thiz.predictCompleteWord(input.substring(0, input.length - 1), options);
             result.forEach(element => {
                 element.fuzzyMatch = true;

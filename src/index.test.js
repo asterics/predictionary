@@ -64,6 +64,11 @@ test('predict empty, learn', () => {
     expect(result[0]).toEqual('Cherry');
 });
 
+test('predict non existing, should be empty', () => {
+    predictionary.addWords(fruits);
+    expect(predictionary.predict('v')).toEqual([]);
+});
+
 test('predict, option numberOfPredictions', () => {
     predictionary.addWords(fruits);
     let result = predictionary.predict('', {maxPredicitons: 5});
