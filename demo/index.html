@@ -142,7 +142,7 @@
                 this.refreshSuggestions();
             },
             refreshSuggestions: function () {
-                this.suggestions = predictionary.predict(this.input, {maxPredicitons: this.nrOfSuggestions});
+                this.suggestions = predictionary.predict(this.input, {maxPredictions: this.nrOfSuggestions});
                 if (this.suggestions.length === 1) {
                     this.predictionIndex = 0;
                 } else {

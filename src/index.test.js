@@ -34,7 +34,7 @@ test('addDictionary, predict, sequence', () => {
     expect(predictionary.predict('apple')).toEqual(expect.arrayContaining(['Apple']));
     expect(predictionary.predict('apple2')).toEqual(expect.arrayContaining(['Apple']));
     expect(predictionary.predict('appletreeflowerbanana')).toEqual(expect.arrayContaining(['Apple']));
-    expect(predictionary.predict('', {maxPredicitons: 1000})).toEqual(expect.arrayContaining(fruits));
+    expect(predictionary.predict('', {maxPredictions: 1000})).toEqual(expect.arrayContaining(fruits));
     expect(predictionary.predict('b')).toEqual(expect.arrayContaining(['Bilberry', 'Blackberry', 'Blackcurrant', 'Blueberry', 'Boysenberry']));
     expect(predictionary.predict('bl')).toEqual(expect.arrayContaining(['Blackberry', 'Blackcurrant', 'Blueberry']));
     expect(predictionary.predict('bla')).toEqual(expect.arrayContaining(['Blackberry', 'Blackcurrant']));
@@ -57,9 +57,9 @@ test('predict, learn', () => {
 
 test('predict empty, learn', () => {
     predictionary.addWords(fruits);
-    expect(predictionary.predict('', {maxPredicitons: 1000})).toEqual(expect.arrayContaining(fruits));
+    expect(predictionary.predict('', {maxPredictions: 1000})).toEqual(expect.arrayContaining(fruits));
     predictionary.learn('Cherry');
-    let result = predictionary.predict('', {maxPredicitons: 1000});
+    let result = predictionary.predict('', {maxPredictions: 1000});
     expect(result).toEqual(expect.arrayContaining(fruits));
     expect(result[0]).toEqual('Cherry');
 });
@@ -71,6 +71,13 @@ test('predict non existing, should be empty', () => {
 
 test('predict, option numberOfPredictions', () => {
     predictionary.addWords(fruits);
+    let result = predictionary.predict('', {maxPredictions: 5});
+    expect(result.length).toEqual(5);
+    expect(fruits).toEqual(expect.arrayContaining(result));
+});
+
+test('predict, option maxPredicitons, legacy version wrong spelling', () => {
+    predictionary.addWords(fruits);
     let result = predictionary.predict('', {maxPredicitons: 5});
     expect(result.length).toEqual(5);
     expect(fruits).toEqual(expect.arrayContaining(result));
@@ -81,7 +88,7 @@ test('predict, option numberOfPredictions, learn', () => {
     predictionary.learn('Cherry');
     predictionary.learn('Coconut');
     predictionary.learn('Coconut');
-    let result = predictionary.predict('', {maxPredicitons: 5});
+    let result = predictionary.predict('', {maxPredictions: 5});
     expect(result.length).toEqual(5);
     expect(fruits).toEqual(expect.arrayContaining(result));
     expect(result[0]).toEqual('Coconut');
@@ -91,9 +98,9 @@ test('predict, option numberOfPredictions, learn', () => {
 test('addWord, single string', () => {
     predictionary.addWords(fruits);
     predictionary.addWord('Test');
-    expect(predictionary.predict('', {maxPredicitons: 1000})).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
+    expect(predictionary.predict('', {maxPredictions: 1000})).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
     predictionary.learn('Test');
-    let result = predictionary.predict('', {maxPredicitons: 1000});
+    let result = predictionary.predict('', {maxPredictions: 1000});
     expect(result).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
     expect(result[0]).toEqual('Test');
 });
@@ -104,7 +111,7 @@ test('addWord, with rank', () => {
         word: 'Test',
         rank: 1
     });
-    let result = predictionary.predict('', {maxPredicitons: 1000});
+    let result = predictionary.predict('', {maxPredictions: 1000});
     expect(result).toEqual(expect.arrayContaining(fruits.concat(['Test'])));
     expect(result[0]).toEqual('Test');
 });
@@ -112,7 +119,7 @@ test('addWord, with rank', () => {
 test('learn, with adding', () => {
     predictionary.addWords(fruits);
     predictionary.learn('Test');
-    let result = predictionary.predict('', {maxPredicitons: 1});
+    let result = predictionary.predict('', {maxPredictions: 1});
     expect(result.length).toEqual(1);
     expect(result[0]).toEqual('Test');
 });
@@ -148,7 +155,7 @@ test('two dictionaries, predict, duplicates, unique items', () => {
     predictionary.addDictionary(TESTKEY, fruits);
     predictionary.addDictionary(TESTKEY2, ['Apple', 'America']);
     predictionary.learn('Apple');
-    expect(predictionary.predict('A', {maxPredicitons: 4})).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado', 'America']));
+    expect(predictionary.predict('A', {maxPredictions: 4})).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado', 'America']));
 });
 
 test('two dictionaries, predict, learn', () => {
@@ -336,10 +343,10 @@ test('applyPrediction, manually', () => {
 test('applyPrediction, test automatic learning', () => {
     predictionary.addWords(fruits);
     predictionary.learn('Apple');
-    expect(predictionary.predict('ap', {maxPredicitons: 1})).toEqual(['Apple']);
+    expect(predictionary.predict('ap', {maxPredictions: 1})).toEqual(['Apple']);
     expect(predictionary.applyPrediction('i want an ap', 'Apricot')).toEqual('i want an Apricot ');
     predictionary.learn('Apricot'); //second time to chose Apricot
-    expect(predictionary.predict('ap', {maxPredicitons: 2})).toEqual(['Apricot', 'Apple']);
+    expect(predictionary.predict('ap', {maxPredictions: 2})).toEqual(['Apricot', 'Apple']);
 });
 
 test('applyPrediction, test automatic learning subsequent words', () => {
@@ -411,8 +418,8 @@ test('parseWords, with rank, custom separators, different order', () => {
 test('predict, fuzzyMatch correct order, two dictionaries', () => {
     predictionary.addDictionary(TESTKEY, ['Apple', 'Apricot', 'Ant']);
     predictionary.addDictionary(TESTKEY2, ['America']);
-    expect(predictionary.predict('Am', {maxPredicitons: 1})).toEqual(['America']);
-    expect(predictionary.predict('Am', {maxPredicitons: 4})).toEqual(expect.arrayContaining(['America', 'Apple', 'Apricot', 'Ant']));
+    expect(predictionary.predict('Am', {maxPredictions: 1})).toEqual(['America']);
+    expect(predictionary.predict('Am', {maxPredictions: 4})).toEqual(expect.arrayContaining(['America', 'Apple', 'Apricot', 'Ant']));
 });
 
 test('getDictionaryKeys, isUsingOnlyDefaultDictionary, default', () => {

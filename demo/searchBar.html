@@ -89,7 +89,7 @@
                 }
             },
             refreshSuggestions: function () {
-                this.suggestions = predictionary.predict(this.input, {maxPredicitons: this.nrOfSuggestions, applyToInput: true});
+                this.suggestions = predictionary.predict(this.input, {maxPredictions: this.nrOfSuggestions, applyToInput: true});
                 if (this.suggestions.length === 1) {
                     this.predictionIndex = 0;
                 } else {

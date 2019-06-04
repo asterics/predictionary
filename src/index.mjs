@@ -295,7 +295,7 @@ function Predictionary() {
      * @param {string} input string for which the predictions should be calculated, e.g. the value of a text input
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
-     * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {number} [options.maxPredictions=10] number of suggestions that should be retrieved maximally //TODO maxPredictions
      * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
@@ -309,7 +309,7 @@ function Predictionary() {
      * @param {string} input string for which the predictions should be calculated, e.g. the value of a text input
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
-     * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {number} [options.maxPredictions=10] number of suggestions that should be retrieved maximally
      * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
@@ -324,7 +324,7 @@ function Predictionary() {
      * @param {string} input string for which the predictions should be calculated, e.g. the value of a text input
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
-     * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {number} [options.maxPredictions=10] number of suggestions that should be retrieved maximally
      * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
@@ -464,7 +464,7 @@ function Predictionary() {
     function predictInternal(input, options, predictType) {
         let predictions = [];
         options = options || {};
-        options.maxPredicitons = options.maxPredicitons || 10;
+        options.maxPredictions = options.maxPredictions || options.maxPredicitons || 10;
         options.applyToInput = options.applyToInput || false;
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
@@ -489,7 +489,7 @@ function Predictionary() {
             return 0;
         });
         let returnArray = [];
-        for (let i = 0; i < predictions.length && returnArray.length < options.maxPredicitons; i++) {
+        for (let i = 0; i < predictions.length && returnArray.length < options.maxPredictions; i++) {
             if (returnArray.indexOf(predictions[i].word) === -1) { //de-duplicate
                 if (options.applyToInput) {
                     returnArray.push(thiz.applyPrediction(input, predictions[i].word, {dontLearn: true}));

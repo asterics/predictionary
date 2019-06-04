@@ -65,7 +65,7 @@ function Dictionary() {
 
     thiz.predictCompleteWord = function (input, options) {
         input = input || '';
-        options = options || {}; //maxPredicitons, predictionMinDepth, predictionMaxDepth, compareFn
+        options = options || {}; //maxPredictions, predictionMinDepth, predictionMaxDepth, compareFn
         let possiblePredictions = [];
         Object.keys(_dict).forEach(key => {
             if (key.toLowerCase().indexOf(input.toLowerCase()) === 0) {
