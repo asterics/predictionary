@@ -229,7 +229,7 @@ function Predictionary() {
         options = options || {};
         if (word) {
             if (!options.dictionaryKey) {
-                Object.keys(_dicts).forEach(key => {
+                thiz.getDictionaryKeys().forEach(key => {
                     _dicts[key].deleteWord(word, options.ignoreCase);
                 });
             } else if (_dicts[options.dictionaryKey]) {
@@ -257,6 +257,7 @@ function Predictionary() {
         let elementSeparator = options.elementSeparator || ';';
         let rankSeparator = options.rankSeparator || ' ';
         let wordPosition = options.wordPosition || 0;
+        let wordPosition2 = options.wordPosition2;
         let rankPosition = options.rankPosition;
         let addToDictionary = options.addToDictionary || thiz.DEFAULT_DICTIONARY_KEY;
 
@@ -264,7 +265,13 @@ function Predictionary() {
         lines.forEach(line => {
             let elems = line.split(rankSeparator);
             let rank = parseInt(elems[rankPosition]);
-            if (elems[wordPosition]) {
+            if (wordPosition !== undefined &amp;&amp; wordPosition2 !== undefined) {
+                let word1 = elems[wordPosition];
+                let word2 = elems[wordPosition2];
+                if (word1 &amp;&amp; word2) {
+                    thiz.learn(word2, word1, addToDictionary);
+                }
+            } else if (elems[wordPosition]) {
                 let elementToAdd = {
                     word: elems[wordPosition].trim()
                 };
@@ -316,7 +323,7 @@ function Predictionary() {
      * @param {string} input string for which the predictions should be calculated, e.g. the value of a text input
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
-     * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {number} [options.maxPredictions=10] number of suggestions that should be retrieved maximally //TODO maxPredictions
      * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
@@ -330,7 +337,7 @@ function Predictionary() {
      * @param {string} input string for which the predictions should be calculated, e.g. the value of a text input
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
-     * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {number} [options.maxPredictions=10] number of suggestions that should be retrieved maximally
      * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
@@ -345,7 +352,7 @@ function Predictionary() {
      * @param {string} input string for which the predictions should be calculated, e.g. the value of a text input
      *        where the user is typing.
      * @param {Object} [options] options object containing additional properties.
-     * @param {number} [options.maxPredicitons=10] number of suggestions that should be retrieved maximally
+     * @param {number} [options.maxPredictions=10] number of suggestions that should be retrieved maximally
      * @param {boolean} [options.applyToInput] if true the suggestions are applied to the original input before being returned
      * @return {string[]} list of words that are predictions/suggestions for the given input, ordered by relevance.
      */
@@ -395,9 +402,11 @@ function Predictionary() {
     this.learn = function (chosenWord, previousWord, addToDictionary) {
         chosenWord = sanitize(chosenWord);
         previousWord = sanitize(previousWord);
-        if (thiz.getDictionaryKeys(true).length > 0 &amp;&amp; (!addToDictionary || !_dicts[addToDictionary])) {
+        let dictKeys = thiz.getDictionaryKeys(true);
+        addToDictionary = dictKeys.length === 1 ? dictKeys[0] : addToDictionary;
+        if (dictKeys.length > 0 &amp;&amp; (!addToDictionary || !_dicts[addToDictionary])) {
             let currentHighscore = 0;
-            thiz.getDictionaryKeys(true).forEach(key => {
+            dictKeys.forEach(key => {
                 let score = 0;
                 if (thiz.hasWord(chosenWord, key)) {
                     score += 2;
@@ -485,7 +494,7 @@ function Predictionary() {
     function predictInternal(input, options, predictType) {
         let predictions = [];
         options = options || {};
-        options.maxPredicitons = options.maxPredicitons || 10;
+        options.maxPredictions = options.maxPredictions || options.maxPredicitons || 10;
         options.applyToInput = options.applyToInput || false;
         Object.keys(_dicts).forEach(key => {
             let dict = _dicts[key];
@@ -510,7 +519,7 @@ function Predictionary() {
             return 0;
         });
         let returnArray = [];
-        for (let i = 0; i &lt; predictions.length &amp;&amp; returnArray.length &lt; options.maxPredicitons; i++) {
+        for (let i = 0; i &lt; predictions.length &amp;&amp; returnArray.length &lt; options.maxPredictions; i++) {
             if (returnArray.indexOf(predictions[i].word) === -1) { //de-duplicate
                 if (options.applyToInput) {
                     returnArray.push(thiz.applyPrediction(input, predictions[i].word, {dontLearn: true}));
@@ -568,7 +577,7 @@ export function instance() {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Wed May 29 2019 13:36:55 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.2</a> on Wed Jun 05 2019 15:24:43 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>
