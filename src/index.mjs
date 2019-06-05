@@ -201,7 +201,7 @@ function Predictionary() {
         options = options || {};
         if (word) {
             if (!options.dictionaryKey) {
-                Object.keys(_dicts).forEach(key => {
+                thiz.getDictionaryKeys().forEach(key => {
                     _dicts[key].deleteWord(word, options.ignoreCase);
                 });
             } else if (_dicts[options.dictionaryKey]) {
@@ -374,9 +374,11 @@ function Predictionary() {
     this.learn = function (chosenWord, previousWord, addToDictionary) {
         chosenWord = sanitize(chosenWord);
         previousWord = sanitize(previousWord);
-        if (thiz.getDictionaryKeys(true).length > 0 && (!addToDictionary || !_dicts[addToDictionary])) {
+        let dictKeys = thiz.getDictionaryKeys(true);
+        addToDictionary = dictKeys.length === 1 ? dictKeys[0] : addToDictionary;
+        if (dictKeys.length > 0 && (!addToDictionary || !_dicts[addToDictionary])) {
             let currentHighscore = 0;
-            thiz.getDictionaryKeys(true).forEach(key => {
+            dictKeys.forEach(key => {
                 let score = 0;
                 if (thiz.hasWord(chosenWord, key)) {
                     score += 2;

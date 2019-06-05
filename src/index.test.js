@@ -500,6 +500,21 @@ test('getWords, one dictionary, learn to correct dictionary, unknown words', () 
     expect(predictionary.getWords().length).toEqual(fruits.length + 2);
 });
 
+test('learn to correct dictionary, only one existing dictionary', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.learn('anything', 'anywhere');
+    expect(predictionary.getWords(TESTKEY)).toEqual(expect.arrayContaining(['anything', 'anywhere']));
+    expect(predictionary.getDictionaryKeys()).toEqual([TESTKEY]);
+});
+
+test('learn to correct default dictionary, two existing dictionaries', () => {
+    predictionary.addWords(fruits, TESTKEY);
+    predictionary.addWords(verbs, TESTKEY2);
+    predictionary.learn('anything', 'anywhere');
+    expect(predictionary.getWords(predictionary.DEFAULT_DICTIONARY_KEY)).toEqual(expect.arrayContaining(['anything', 'anywhere']));
+    expect(predictionary.getDictionaryKeys()).toEqual(expect.arrayContaining([TESTKEY, TESTKEY2, predictionary.DEFAULT_DICTIONARY_KEY]));
+});
+
 test('getWords, one dictionary, learn to correct dictionary, known chosen word', () => {
     predictionary.addWords(fruits, TESTKEY);
     predictionary.learn('Apple', 'test');
