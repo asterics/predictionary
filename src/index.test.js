@@ -468,6 +468,17 @@ test('learnFromInput', () => {
     expect(predictionary.predict('house ')).toEqual(['is']);
 });
 
+test('learnFromInput, return value', () => {
+    expect(predictionary.learnFromInput('He')).toEqual(false);
+    expect(predictionary.learnFromInput('Hello')).toEqual(false);
+    expect(predictionary.learnFromInput('Hello my')).toEqual(false);
+    expect(predictionary.learnFromInput('Hello my na')).toEqual(false);
+    expect(predictionary.learnFromInput('Hello my name ')).toEqual(true);
+    expect(predictionary.learnFromInput('Hello my name is ')).toEqual(true);
+    expect(predictionary.learnFromInput('Hello my name is Mi')).toEqual(false);
+    expect(predictionary.learnFromInput('Hello my name is Michael ')).toEqual(true);
+});
+
 test('addWord, sanitize', () => {
     predictionary.addWord(" heiße !");
     expect(predictionary.predict('h')).toEqual(['heiße']);

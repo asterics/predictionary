@@ -410,6 +410,7 @@ function Predictionary() {
      *
      * @param {string} input the text string to learn with. The second last and third last words are learned.
      * @param {string} [dictionaryKey] the key of the dictionary where new words should be added. Automatically determined, if not specified.
+     * @return {boolean} true if something was learned, false if not
      */
     this.learnFromInput = function (input, dictionaryKey) {
         if (isLastWordCompleted(input)) {
@@ -418,8 +419,10 @@ function Predictionary() {
             if (chosenWord && chosenWord !== _lastChosenWord) {
                 _lastChosenWord = chosenWord;
                 thiz.learn(chosenWord, previousWord, dictionaryKey);
+                return true;
             }
         }
+        return false;
     };
 
     /**
