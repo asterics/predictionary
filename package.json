@@ -1,6 +1,6 @@
 {
   "name": "predictionary",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "JavaScript dictionary-based word prediction library.",
   "main": "src/index",
   "scripts": {
