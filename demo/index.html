@@ -3,6 +3,7 @@
 <head>
     <title>Predictionary Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="Ms_y5HqnQoFb0qKLvbuU5UxHMNmbY4CNbpkQk2bgy4w"/>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
     <link rel="stylesheet" href="custom.css">
@@ -14,7 +15,23 @@
 </head>
 <body>
 <div id="app">
-    <h1>Predictionary Demo</h1>
+    <h1>Predictionary</h1>
+    <h2>General information</h2>
+    <div class="row">
+        <p class="ten columns">
+            Predictionary is a simple JavaScript dictionary-based word prediction library with self-learning abilities.
+            This page shows a simple demo of Predictionary in use, where words are suggested and the dictionary is refined
+            as there is text typed in the textarea.
+        </p>
+    </div>
+    <div class="row">
+        <p class="ten columns">
+            For more information about Predictionary visit:<br/>
+            <a href="https://github.com/asterics/predictionary">Github project</a><br/>
+            <a href="https://asterics.github.io/predictionary/docs/Predictionary.html">API Documentation</a>
+        </p>
+    </div>
+    <h2>Demo</h2>
     <div class="row">
         <label for="selectLang" class="two columns">Use dictionaries: </label>
         <select id="selectLang" class="four columns" @change="useDictionaries(event.target.value)">
