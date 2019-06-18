@@ -114,6 +114,11 @@
                 });
                 $('#textarea').focus();
                 this.predictionIndex = null;
+                this.refreshSuggestions();
+                if (this.learnFromType) {
+                    predictionary.learnFromInput(this.input);
+                }
+
             },
             choose: function () {
                 if (this.predictionIndex === null) {
