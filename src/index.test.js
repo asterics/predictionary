@@ -13,8 +13,17 @@ beforeEach(() => {
 test.skip('addDictionary, predict, performance', () => {
     predictionary.addWords(fruits);
     let startTime = new Date().getTime();
-    for (var i = 0; i < 60000; i++) {
+    for (let i = 0; i < 60000; i++) {
         expect(predictionary.predict('A')).toEqual(expect.arrayContaining(['Apple', 'Apricot', 'Avocado']));
+    }
+    console.log('needed time: ' + (new Date().getTime() - startTime) + 'ms')
+});
+
+test.skip('predict non existing, but same beginning, truncate input, performance', () => {
+    predictionary.addWords(fruits);
+    let startTime = new Date().getTime();
+    for (let i = 0; i < 60000; i++) {
+        expect(predictionary.predict('Appleasdfbasdfasdf')).toEqual(['Apple']);
     }
     console.log('needed time: ' + (new Date().getTime() - startTime) + 'ms')
 });
@@ -67,6 +76,11 @@ test('predict empty, learn', () => {
 test('predict non existing, should be empty', () => {
     predictionary.addWords(fruits);
     expect(predictionary.predict('v')).toEqual([]);
+});
+
+test('predict non existing, but same beginning, truncate input', () => {
+    predictionary.addWords(fruits);
+    expect(predictionary.predict('Appleasdfbasdfasdf')).toEqual(['Apple']);
 });
 
 test('predict, option numberOfPredictions', () => {

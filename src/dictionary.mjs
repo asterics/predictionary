@@ -3,6 +3,8 @@ import itemFactory from "./itemFactory.mjs";
 function Dictionary() {
     let thiz = this;
     let _dict = {};
+    let _lastPredictionInput = null;
+    let _lastPredictions = null;
 
     thiz.load = function (dictionaryJSON) {
         let importDict = JSON.parse(dictionaryJSON);
@@ -74,19 +76,26 @@ function Dictionary() {
         });
 
         if (possiblePredictions.length === 0 && input.length > 1) {
-            let result = thiz.predictCompleteWord(input.substring(0, input.length - 1), options);
+            let result = null;
+            if (_lastPredictionInput && _lastPredictions && input.indexOf(_lastPredictionInput) === 0) {
+                result = _lastPredictions;
+            } else {
+                result = thiz.predictCompleteWord(input.substring(0, input.length - 1), options);
+            }
             result.forEach(element => {
                 element.fuzzyMatch = true;
             });
             return result;
         }
-        return possiblePredictions.map(element => {
+        _lastPredictionInput = input;
+        _lastPredictions = possiblePredictions.map(element => {
             return {
                 word: element.w,
                 frequency: element.f,
                 rank: element.r
             };
         });
+        return _lastPredictions;
     };
 
     thiz.predictNextWord = function (previousWord, options) {
