@@ -520,7 +520,7 @@ function isLastWordCompleted(text) {
 
 function sanitize(word) {
     word = word || '';
-    return word.replace(/[^a-z0-9áéíóúñüäöß'`´’]/gim, '');
+    return word.replace(/[!?,;.:\n]/gim, '').trim();
 }
 
 /**

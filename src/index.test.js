@@ -429,6 +429,20 @@ test('parseWords, with rank, custom separators, different order', () => {
     expect(predictionary.predict('')).toEqual(expect.arrayContaining(['1', '2', '3']));
 });
 
+test('parseWords, predict, hebrew', () => {
+    let importString = '1\tכמו\tas\n' +
+        '2\tאני\tI\n' +
+        '3\tשלו\this';
+    predictionary.parseWords(importString, {
+        elementSeparator: '\n',
+        rankSeparator: '\t',
+        wordPosition: 1,
+        rankPosition: 0
+    });
+    expect(predictionary.predict('')).toEqual(expect.arrayContaining(['כמו', 'אני', 'שלו']));
+    expect(predictionary.predict('כ')).toEqual(expect.arrayContaining(['כמו']));
+});
+
 test('predict, fuzzyMatch correct order, two dictionaries', () => {
     predictionary.addDictionary(TESTKEY, ['Apple', 'Apricot', 'Ant']);
     predictionary.addDictionary(TESTKEY2, ['America']);
