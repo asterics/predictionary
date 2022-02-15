@@ -443,6 +443,24 @@ test('parseWords, predict, hebrew', () => {
     expect(predictionary.predict('כ')).toEqual(expect.arrayContaining(['כמו']));
 });
 
+test('parseWords, without rank, rankIsIndex', () => {
+    let importString = 'sun,salat,single,super,apple,banana';
+    predictionary.parseWords(importString, {
+        elementSeparator: ',',
+        rankIsIndex: true
+    });
+    expect(predictionary.predict('s')).toEqual(['sun', 'salat', 'single', 'super']);
+});
+
+test('parseWords, without rank, rankIsIndex2', () => {
+    let importString = 'salat,sun,single,super,apple,banana';
+    predictionary.parseWords(importString, {
+        elementSeparator: ',',
+        rankIsIndex: true
+    });
+    expect(predictionary.predict('s')).toEqual(['salat', 'sun', 'single', 'super']);
+});
+
 test('predict, fuzzyMatch correct order, two dictionaries', () => {
     predictionary.addDictionary(TESTKEY, ['Apple', 'Apricot', 'Ant']);
     predictionary.addDictionary(TESTKEY2, ['America']);

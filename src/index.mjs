@@ -221,6 +221,8 @@ function Predictionary() {
      * @param {string} [options.rankSeparator=<space>] separator to split a single element into word and rank
      * @param {string} [options.wordPosition=0] position of the word in the element (0-based)
      * @param {string} [options.rankPosition] position of the rank in the element (0-based)
+     * @param {string} [options.rankIsIndex] if true, the rank of the word is determined by the index in the importString
+     *                                       (e.g. import ordered list of most frequent words without explicit given rank)
      * @param {string} [options.addToDictionary={@link Predictionary#DEFAULT_DICTIONARY_KEY}] key of the dictionary where
      *        the words should be added.
      */
@@ -231,12 +233,13 @@ function Predictionary() {
         let wordPosition = options.wordPosition || 0;
         let wordPosition2 = options.wordPosition2;
         let rankPosition = options.rankPosition;
+        let rankIsIndex = !!options.rankIsIndex;
         let addToDictionary = options.addToDictionary || thiz.DEFAULT_DICTIONARY_KEY;
 
         let lines = importString.split(elementSeparator);
-        lines.forEach(line => {
+        lines.forEach((line, index) => {
             let elems = line.split(rankSeparator);
-            let rank = parseInt(elems[rankPosition]);
+            let rank = rankIsIndex ? (index + 1) : parseInt(elems[rankPosition]);
             if (wordPosition !== undefined && wordPosition2 !== undefined) {
                 let word1 = elems[wordPosition];
                 let word2 = elems[wordPosition2];
